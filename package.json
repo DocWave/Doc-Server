@@ -1,0 +1,15 @@
+{
+  "name": "doc-server",
+  "version": "1.0.0",
+  "description": "JS doc repository server and scraper",
+  "main": "server/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DocWave/Doc-Server.git"
+  },
+  "author": "Sporks, Dan Levin, Cruz Welborn, Lea Fox",
+  "license": "MIT"
+}
