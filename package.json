@@ -11,5 +11,8 @@
     "url": "git+https://github.com/DocWave/Doc-Server.git"
   },
   "author": "Sporks, Dan Levin, Cruz Welborn, Lea Fox",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "archiver": "^0.21.0"
+  }
 }
