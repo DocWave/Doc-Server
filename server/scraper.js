@@ -7,9 +7,11 @@ var archiver = require('archiver');
 //Constants to be changed or added later with inputs to program
 module.exports = (function nodeScraper(req, res, next){
     const   URL_TO_SCRAPE = 'http://nodejs.org/api/',
+            SOURCE_NAME = 'Node API',
             CSS_DIR = 'assets',
             JS_DIR = 'js',
             SCRAPE_DIR = 'node/';
+    var versionNo;
 
     var archive = archiver('zip');
 
@@ -40,6 +42,7 @@ module.exports = (function nodeScraper(req, res, next){
         console.log('archiver has been finalized and the output file descriptor has closed.');
         deleteFolderRecursive(SCRAPE_DIR);
         res.filePath = output.path;
+        res.sourceName = SOURCE_NAME;
         next();
     });
 
@@ -95,10 +98,20 @@ module.exports = (function nodeScraper(req, res, next){
     //Specific nodejs.com documentation removal of ToC and sidebar
     function nodeRewrite(html) {
         var $ = cheerio.load(html);
+        //store in a temp first, in case it doesnt exist
+        var temp = $('header h1').text()
+        if(!versionNo && temp){
+            //Grab the part that matches version number and trim it to get rid of spaces
+            //then slice off the first character (the v)
+            temp = temp.match(/\sv.*\s/)[0].trim().slice(1)
+        }
         $('#column2').remove();
         $('#toc').remove();
         $('header').remove();
         html = $.html();
+        //Don't let it run all day
+        versionNo = temp;
+        res.versionNo = temp;
         return html;
     }
 
