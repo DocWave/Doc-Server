@@ -4,13 +4,14 @@ var cheerio = require('cheerio');
 var archiver = require('archiver');
 
 //Specify type of archive - zip or tar
-var archive = archiver('zip');
 //Constants to be changed or added later with inputs to program
 module.exports = (function nodeScraper(req, res, next){
     const   URL_TO_SCRAPE = 'http://nodejs.org/api/',
             CSS_DIR = 'assets',
             JS_DIR = 'js',
-            SCRAPE_DIR = '../node/';
+            SCRAPE_DIR = 'node/';
+
+    var archive = archiver('zip');
 
     //Create output file stream from SCRAPE_DIR
     var output = fs.createWriteStream(SCRAPE_DIR.slice(0,-1)+'.zip');
@@ -31,8 +32,6 @@ module.exports = (function nodeScraper(req, res, next){
       maxDepth: 1
     }).then((data)=>{
         getFiles();
-        // res.output = output;
-        // next();
     }).catch(console.log);
 
     //Event listener for end of zipping function - delete folder
@@ -40,7 +39,8 @@ module.exports = (function nodeScraper(req, res, next){
         console.log(archive.pointer() + ' total bytes');
         console.log('archiver has been finalized and the output file descriptor has closed.');
         deleteFolderRecursive(SCRAPE_DIR);
-        // res.sendFile(output)
+        res.filePath = output.path;
+        next();
     });
 
     archive.on('error', function(err){
