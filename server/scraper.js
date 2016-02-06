@@ -5,7 +5,7 @@ var archiver = require('archiver');
 
 //Specify type of archive - zip or tar
 //Constants to be changed or added later with inputs to program
-module.exports = (function nodeScraper(req, res, next){
+module.exports = function nodeScraper(req, res, next){
     const   URL_TO_SCRAPE = 'http://nodejs.org/api/',
             SOURCE_NAME = 'Node API',
             CSS_DIR = 'assets',
@@ -129,6 +129,4 @@ module.exports = (function nodeScraper(req, res, next){
         fs.rmdirSync(path);
       }
     }
-})
-
-// module.exports = nodeScraper;
+}
