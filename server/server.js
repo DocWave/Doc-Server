@@ -3,6 +3,7 @@
 const express = require( 'express' );
 const bodyParser = require( 'body-parser' );
 const path = require( 'path' );
+const scraper = require('./scraper');
 const app = express();
 
 app.use(bodyParser.urlencoded({extended:true}));
@@ -53,6 +54,13 @@ app.get('/html', function(req,res){
   console.log("send full html back to client");
 });
 
+<<<<<<< HEAD
+=======
+app.get('/test', scraper, function(req, res, next){
+    res.sendFile(res.output);
+});
+
+>>>>>>> a264e2a7c61feaefe41f2759c80a8f56aa58190f
 
 app.listen(3000, function(){
   console.log("Server is listening on port 3000");

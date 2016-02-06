@@ -1,10 +1,11 @@
-{    
+{
   "name": "doc-server",
   "version": "1.0.0",
   "description": "JS doc repository server and scraper",
   "main": "server/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server/server.js"
   },
   "repository": {
     "type": "git",
@@ -14,8 +15,8 @@
   "license": "MIT",
   "dependencies": {
     "archiver": "^0.21.0",
-		"body-parser": "^1.14.2",
 		"path": "^0.12.7",
+    "body-parser": "^1.14.2",
     "express": "^4.13.4"
   }
 }
