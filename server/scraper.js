@@ -116,6 +116,6 @@ module.exports = (function nodeScraper(req, res, next){
         fs.rmdirSync(path);
       }
     }
-})
+});
 
 // module.exports = nodeScraper;

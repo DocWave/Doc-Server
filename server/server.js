@@ -26,29 +26,7 @@ app.get('/node', function(req,res){
   res.sendFile(path.resolve('server/node.zip'));
   console.log("sending full html back to client");
 });
-//////////////////////////////////////////////////
-// Handle post to server add zip file update DB
-//////////////////////////////////////////////////
-app.post('/node', function(req, res){
 
-  console.log('new file being posted to server');
-});
-//////////////////////////////////////////////////
-// delete zip/or section from server update DB
-//////////////////////////////////////////////////
-app.delete('/node', function(req, res){
-
-});
-//////////////////////////////////////////////////
-// handle changes to node update DB
-//////////////////////////////////////////////////
-app.put('/node', function(req, res){
-
-});
-
-/////////////////////////////////////////////////
-//// Handle requests for data
-/////////////////////////////////////////////////
 app.get('/html', function(req,res){
   res.sendFile(path.join(__dirname, '/../index.html'));
   console.log("send full html back to client");
