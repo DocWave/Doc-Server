@@ -1,33 +1,4 @@
-{
-<<<<<<< HEAD
-	"name": "Doc-tor",
-	"version": "1.0.0",
-	"description": "JS Doc repository",
-	"main": "main.js",
-	"scripts": {
-		"start": "nodemon server/server.js"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/lfox91/Doc-tor"
-	},
-	"keywords": [
-    "Electron",
-    "Documentation",
-    "Searchable",
-    "JavaScript"
-  ],
-  "author": "Dan Levin, Cruz Welborn, Lea Fox",
-  "license": "CC0-1.0",
-  "bugs": {
-    "url": "https://github.com/lfox91/Doc-tor/issues"
-  },
-  "homepage": "https://github.com/lfox91/Doc-tor#readme",
-  "dependencies": {
-    "body-parser": "^1.14.2",
-		"path": "^0.12.7",
-    "express": "^4.13.4"
-=======
+{    
   "name": "doc-server",
   "version": "1.0.0",
   "description": "JS doc repository server and scraper",
@@ -42,7 +13,9 @@
   "author": "Sporks, Dan Levin, Cruz Welborn, Lea Fox",
   "license": "MIT",
   "dependencies": {
-    "archiver": "^0.21.0"
->>>>>>> a7d7c760213d84656beaf758db878c7fb6f723b1
+    "archiver": "^0.21.0",
+		"body-parser": "^1.14.2",
+		"path": "^0.12.7",
+    "express": "^4.13.4"
   }
 }
