@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
 	"name": "Doc-tor",
 	"version": "1.0.0",
 	"description": "JS Doc repository",
@@ -26,5 +27,22 @@
     "body-parser": "^1.14.2",
 		"path": "^0.12.7",
     "express": "^4.13.4"
+=======
+  "name": "doc-server",
+  "version": "1.0.0",
+  "description": "JS doc repository server and scraper",
+  "main": "server/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DocWave/Doc-Server.git"
+  },
+  "author": "Sporks, Dan Levin, Cruz Welborn, Lea Fox",
+  "license": "MIT",
+  "dependencies": {
+    "archiver": "^0.21.0"
+>>>>>>> a7d7c760213d84656beaf758db878c7fb6f723b1
   }
 }
