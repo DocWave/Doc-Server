@@ -15,8 +15,9 @@
   "license": "MIT",
   "dependencies": {
     "archiver": "^0.21.0",
-		"path": "^0.12.7",
     "body-parser": "^1.14.2",
-    "express": "^4.13.4"
+    "express": "^4.13.4",
+    "mongoose": "^4.4.2",
+    "path": "^0.12.7"
   }
 }
