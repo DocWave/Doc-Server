@@ -2,18 +2,24 @@
 module.exports = {
 
   addToDB : function(req, res, next){
-    //update version later
-    let query = {name: res.fileName, version: res.versionNo};
-
-    Update.findOne(query, found(err, foundUpdate));
-
+    //assigns a new Update document to the variable update
     let update = new Update ({name : res.sourceName,
                               version : res.versionNo,
                               fileLocation : res.filePath,
                               retrieved : Date.now()});
+    //store our query in a variable
+    //fileName = the name of documentation
+    let query = {name: res.fileName, version: res.versionNo};
 
+    //Checks database to see if doc already exists
+    // runs callback found(err,foundUpdate)
+    Update.findOne(query, found(err, foundUpdate));
+
+    //takes in an err from findOne and the returned Doc
     function found(err, foundUpdate){
       if(err){
+        //will save doc on any err
+        //...could be problematic
         update.save( function(err, update){
           if(err)console.error(err);
           else {
@@ -22,7 +28,9 @@ module.exports = {
           }
         });
       }
-      if ( foundUpdate ){
+      if ( foundUpdate ){ // if the Doc exists update
+        //currently only updating the Date
+        // we can handle version numbers at a later date
         foundUpdate.findOneAndUpdate(query, {retrieved: Date.now()}, function(err, newInfo){
           if (err) console.log(err);
           else{
