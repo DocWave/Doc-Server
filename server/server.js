@@ -6,14 +6,17 @@ const bodyParser = require( 'body-parser' );
 const path = require( 'path' );
 const mongoose = require('mongoose');
 const scraper = require('./scraper');
-const dbController = require('./controller/dbController');
-const Update = require('./controller/updateModel');
-mongoose.connect('mongodb://localhost/DocTor');
+const dbController = require('./controllers/dbController');
+const Update = require('./controllers/updateModel');
+mongoose.connect('mongodb://localhost/doctor');
 const db = mongoose.connection;
 const app = express();
 
+db.on('error', console.error.bind(console, 'connection error:'));
 
-
+db.once('open', function() {
+  console.log("your db is open");
+});
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static(path.join(__dirname,'./../public')));
@@ -32,6 +35,7 @@ app.get('/' , function(req, res){
 //// Handle req for node zip
 /////////////////////////////////////////////////
 app.get('/node', scraper, dbController.addToDB, function(req,res){
+  console.log(res.filePath);
   res.sendFile(path.resolve(res.filePath));
   console.log("sending full html back to client");
 });
@@ -39,7 +43,6 @@ app.get('/node', scraper, dbController.addToDB, function(req,res){
 // Handle post to server add zip file update DB
 //////////////////////////////////////////////////
 app.post('/node', function(req, res){
-
   console.log('new file being posted to server');
 });
 //////////////////////////////////////////////////
@@ -48,22 +51,21 @@ app.post('/node', function(req, res){
 app.delete('/node', function(req, res){
 
 });
-//////////////////////////////////////////////////
+/////////////////////////////////////////////////
 // handle changes to node update DB
 //////////////////////////////////////////////////
 app.put('/node', function(req, res){
 
 });
 
-/////////////////////////////////////////////////
-//// Handle requests for data
-/////////////////////////////////////////////////
-app.get('/html', function(req,res){
-  res.sendFile(path.join(__dirname, '/../index.html'));
-  console.log("send full html back to client");
-});
-
-db.on('error', console.error.bind(console, 'connection error:'));
+///////////////////////////////////////////////
+// Handle requests for data
+// (option for multiple sites)
+///////////////////////////////////////////////
+// app.get('/html', function(req,res){
+//   res.sendFile(path.join(__dirname, '/../index.html'));
+//   console.log("send full html back to client");
+// });
 
 app.listen(3000, function(){
   console.log("Server is listening on port 3000");

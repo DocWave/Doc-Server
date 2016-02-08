@@ -1,14 +1,16 @@
-
+'use strict';
 module.exports = {
 
   addToDB : function(req, res, next){
     //assigns a new Update document to the variable update
+    console.log("I run");
     let update = new Update ({name : res.sourceName,
                               version : res.versionNo,
                               fileLocation : res.filePath,
                               retrieved : Date.now()});
     //store our query in a variable
     //fileName = the name of documentation
+    console.log(update);
     let query = {name: res.fileName, version: res.versionNo};
 
     //Checks database to see if doc already exists
@@ -20,6 +22,9 @@ module.exports = {
       if(err){
         //will save doc on any err
         //...could be problematic
+        console.log(err);
+      }
+      if(foundUpdate===null && err){
         update.save( function(err, update){
           if(err)console.error(err);
           else {
