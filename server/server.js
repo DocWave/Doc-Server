@@ -6,8 +6,8 @@ const bodyParser = require( 'body-parser' );
 const path = require( 'path' );
 const mongoose = require('mongoose');
 const scraper = require('./scraper');
-const dbController = require('./controller/dbController');
-const Update = require('./controller/updateModel');
+const dbController = require('./controllers/dbController');
+const Update = require('./controllers/updateModel');
 mongoose.connect('mongodb://localhost/DocTor');
 const db = mongoose.connection;
 const app = express();
@@ -48,6 +48,11 @@ app.post('/node', function(req, res){
 app.delete('/node', function(req, res){
 
 });
+
+app.get('/test', scraper, function(req, res){
+    res.sendFile(path.resolve(res.filePath));
+
+})
 //////////////////////////////////////////////////
 // handle changes to node update DB
 //////////////////////////////////////////////////
