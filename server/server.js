@@ -38,8 +38,8 @@ app.get('/' , function(req, res){
 //// Handle req for node zip
 /////////////////////////////////////////////////
 app.get('/node', scraper, dbController.addToDB, function(req,res){
-  console.log(res.filePath);
-  // res.sendFile(path.resolve(res.filePath));
+  console.log(res.filePath, "HELLO ");
+  res.sendFile(path.resolve(res.filePath));
   console.log("sending full html back to client");
 });
 //////////////////////////////////////////////////
