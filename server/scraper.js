@@ -129,6 +129,7 @@ module.exports = (function nodeScraper(req, res, next){
         fs.rmdirSync(path);
       }
     }
+    next();
 });
 
 // module.exports = nodeScraper;
