@@ -3,7 +3,7 @@ var fs = require('fs');
 var cheerio = require('cheerio');
 var archiver = require('archiver');
 var folderHandler = require('./folderHandler');
-var parser = require('./nodeparser');
+var parseEntry = require('./parseEntryPoint');
 
 //Specify type of archive - zip or tar
 //Constants to be changed or added later with inputs to program
@@ -79,16 +79,29 @@ module.exports = function nodeScraper(req, res, next){
                     editFile(name);
                 }
             });
-            //Time to zip the file
-            //Pipe zip to the output file
-            archive.pipe(output);
-            //specify what to zip up (in this case the directory itself) and append them to the zip
-            //Make the directory the zip file extracts to to be based on the SCRAPE_DIR
-            archive.bulk([
-                { expand: true, cwd: BASE_DIR, src: ['**'], dest: SCRAPE_DIR.slice(0,-1)+'.docs'}
-            ]);
-            //Finalize archive and prevent further appends
-            archive.finalize();
+
+            //Since readdir is async, and is also called by parseEntry, we need to promisify it, and
+            //send the resolve over
+            var p1 = new Promise((resolve, reject)=>{
+                parseEntry.allFiles(BASE_DIR, DOWNLOAD_DIR, resolve, reject);
+            });
+
+            p1.then(function(val){
+                //Time to zip the file
+                //Pipe zip to the output file
+                archive.pipe(output);
+                //specify what to zip up (in this case the directory itself) and append them to the zip
+                //Make the directory the zip file extracts to to be based on the SCRAPE_DIR
+                archive.bulk([
+                    { expand: true, cwd: BASE_DIR, src: ['**'], dest: SCRAPE_DIR.slice(0,-1)+'.docs'}
+                ]);
+                // archive.append()
+                //Finalize archive and prevent further appends
+                archive.finalize();
+            }).catch((val)=>{
+                console.log("Promise rejected: ", val)
+            })
+
         });
     }
 
@@ -99,7 +112,6 @@ module.exports = function nodeScraper(req, res, next){
                 replace(/src=\"\/(?!\/)/gi, 'src="');
             //Call function to remove extraneous stuff
             newData = nodeRewrite(newData);
-            parser(file);
             //Rewrite file
             fs.writeFile(file, newData, 'utf-8', (err)=>{
                 if(err){
@@ -114,11 +126,11 @@ module.exports = function nodeScraper(req, res, next){
     function nodeRewrite(html) {
         var $ = cheerio.load(html);
         //store in a temp first, in case it doesnt exist
-        var temp = $('header h1').text()
+        var temp = $('header h1').text();
         if(!versionNo && temp){
             //Grab the part that matches version number and trim it to get rid of spaces
             //then slice off the first character (the v)
-            temp = temp.match(/\sv.*\s/)[0].trim().slice(1)
+            temp = temp.match(/\sv.*\s/)[0].trim().slice(1);
         }
         $('#column2').remove();
         $('#toc').remove();
@@ -130,4 +142,5 @@ module.exports = function nodeScraper(req, res, next){
         //Return full html to be written as file instead of html and cheerio data
         return html;
     }
+
 }
