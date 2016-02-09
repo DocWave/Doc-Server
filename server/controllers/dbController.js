@@ -10,14 +10,13 @@ module.exports = {
                               version : res.versionNo,
                               fileLocation : res.filePath,
                               retrieved : Date.now()});
+                              
     //store our query in a variable
     //fileName = the name of documentation
-    console.log(update);
     let query = Update.where({version: res.versionNo});
-    // console.log(res.fileName, res.versionNo, res.filePath);
-    //Checks database to see if doc already exists
-    // runs callback found(err,foundUpdate)
 
+    // Checks database to see if doc already exists
+    // runs callback found(err,foundUpdate)
     query.findOne( function (err, foundUpdate){
       //takes in an err from findOne and the returned Doc
       if(err)console.log(err);
