@@ -1,6 +1,7 @@
 'use strict';
 const Update = require('./updateModel');
 
+
 module.exports = {
 
   addToDB : function(req, res, next){
@@ -12,16 +13,16 @@ module.exports = {
     //store our query in a variable
     //fileName = the name of documentation
     console.log(update);
-    let query = {name: res.fileName, version: res.versionNo};
+    let query = Update.where({version: res.versionNo});
     // console.log(res.fileName, res.versionNo, res.filePath);
     //Checks database to see if doc already exists
     // runs callback found(err,foundUpdate)
 
-    Update.findOne(query, function (err, foundUpdate){
+    query.findOne( function (err, foundUpdate){
       //takes in an err from findOne and the returned Doc
       if(err)console.log(err);
 
-      if(foundUpdate===null && !err){
+      if(!foundUpdate){
         update.save( function(err, update){
           if(err) {
             console.error(err);
@@ -33,12 +34,11 @@ module.exports = {
       }
 
       if ( foundUpdate ){ // if the Doc exists update
-        //currently only updating the Date
-        // we can handle version numbers at a later date
-        Update.findOneAndUpdate(query, {retrieved: Date.now()}, function(err, newInfo){
+        //currently only updating the Date - can handle version numbers at a later date
+        query.findOneAndUpdate( {retrieved: Date.now()}, function(err, newInfo){
           if (err) console.log(err);
           else{
-            console.log(newInfo);
+            console.log("NewInfo ", newInfo);
             next();
           }
         });

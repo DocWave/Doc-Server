@@ -43,7 +43,7 @@ app.get('/node', scraper, dbController.addToDB, function(req,res){
   console.log("sending full html back to client");
 });
 //////////////////////////////////////////////////
-// Handle post to server add zip file update DB
+// Test crash reporting route
 //////////////////////////////////////////////////
 app.post('/error', function(req, res){
   console.log("this func is running");

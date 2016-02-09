@@ -99,11 +99,11 @@ module.exports = (function nodeScraper(req, res, next){
     function nodeRewrite(html) {
         var $ = cheerio.load(html);
         //store in a temp first, in case it doesnt exist
-        var temp = $('header h1').text()
+        var temp = $('header h1').text();
         if(!versionNo && temp){
             //Grab the part that matches version number and trim it to get rid of spaces
             //then slice off the first character (the v)
-            temp = temp.match(/\sv.*\s/)[0].trim().slice(1)
+            temp = temp.match(/\sv.*\s/)[0].trim().slice(1);
         }
         $('#column2').remove();
         $('#toc').remove();
@@ -129,7 +129,6 @@ module.exports = (function nodeScraper(req, res, next){
         fs.rmdirSync(path);
       }
     }
-    next();
 });
 
 // module.exports = nodeScraper;
