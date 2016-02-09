@@ -5,7 +5,7 @@
   "main": "server/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server/server.js"
+    "start": "nodemon --ignore docs/ server/server.js"
   },
   "repository": {
     "type": "git",
@@ -15,8 +15,9 @@
   "license": "MIT",
   "dependencies": {
     "archiver": "^0.21.0",
-		"path": "^0.12.7",
     "body-parser": "^1.14.2",
-    "express": "^4.13.4"
+    "express": "^4.13.4",
+    "path": "^0.12.7",
+    "sql.js": "^0.2.21"
   }
 }
