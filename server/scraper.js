@@ -2,21 +2,34 @@ var scraper = require('website-scraper');
 var fs = require('fs');
 var cheerio = require('cheerio');
 var archiver = require('archiver');
+var folderHandler = require('./folderHandler');
+var parser = require('./nodeparser');
 
 //Specify type of archive - zip or tar
 //Constants to be changed or added later with inputs to program
+/* Want structure of directory of files to be eg /node.docs/docs/
+*  with the sql file in /node.docs
+*  and temporary directory to be documentation/
+*  so docs/+SCRAPE_DIR+/documents will be DOWNLOAD_DIR
+*  BASE_DIR will be docs/SCRAPE_DIR  maybe rename SCRAPE_DIR?
+*/
 module.exports = function nodeScraper(req, res, next){
     const   URL_TO_SCRAPE = 'http://nodejs.org/api/',
             SOURCE_NAME = 'Node API',
             CSS_DIR = 'assets',
-            JS_DIR = 'js',
-            SCRAPE_DIR = 'node/';
+            JS_DIR = 'assets',
+            SCRAPE_DIR = 'node/',
+            BASE_DIR = 'docs/'+SCRAPE_DIR,
+            DOWNLOAD_DIR = BASE_DIR+'documents/';
+
     var versionNo;
 
     var archive = archiver('zip');
 
     //Create output file stream from SCRAPE_DIR
     var output = fs.createWriteStream(SCRAPE_DIR.slice(0,-1)+'.zip');
+    //Check to see if folder was deleted or not, and if so, delete it
+    folderHandler.checkFolders(BASE_DIR);
 
     /*
     * Initialize scraper and provide URL, directory to store files, subdirectories
@@ -24,7 +37,7 @@ module.exports = function nodeScraper(req, res, next){
     */
     scraper.scrape({
       urls: [URL_TO_SCRAPE],
-      directory: SCRAPE_DIR,
+      directory: DOWNLOAD_DIR,
       subdirectories: [
     		{directory: 'img', extensions: ['.jpg', '.png', '.svg']},
     		{directory: JS_DIR, extensions: ['.js']},
@@ -40,9 +53,10 @@ module.exports = function nodeScraper(req, res, next){
     output.on('close', function () {
         console.log(archive.pointer() + ' total bytes');
         console.log('archiver has been finalized and the output file descriptor has closed.');
-        deleteFolderRecursive(SCRAPE_DIR);
+        folderHandler.deleteFolderRecursive(BASE_DIR);
         res.filePath = output.path;
         res.sourceName = SOURCE_NAME;
+        res.versionNo = versionNo;
         next();
     });
 
@@ -54,11 +68,11 @@ module.exports = function nodeScraper(req, res, next){
     function getFiles() {
         var list;
         //Get list of files in directory
-        fs.readdir('node', (err, file) => {
+        fs.readdir(DOWNLOAD_DIR, (err, file) => {
             list = file;
             list.forEach((name) => {
                 //Add directory name to file name for FS
-                name = 'node/'.concat(name);
+                name = DOWNLOAD_DIR.concat(name);
                 //only edit html files
                 if(name.match(/\.html$/)){
                     //pass file names off to be read and rewritten
@@ -71,7 +85,7 @@ module.exports = function nodeScraper(req, res, next){
             //specify what to zip up (in this case the directory itself) and append them to the zip
             //Make the directory the zip file extracts to to be based on the SCRAPE_DIR
             archive.bulk([
-                { expand: true, cwd: SCRAPE_DIR, src: ['**'], dest: SCRAPE_DIR.slice(0,-1)+'.docs'}
+                { expand: true, cwd: BASE_DIR, src: ['**'], dest: SCRAPE_DIR.slice(0,-1)+'.docs'}
             ]);
             //Finalize archive and prevent further appends
             archive.finalize();
@@ -85,6 +99,7 @@ module.exports = function nodeScraper(req, res, next){
                 replace(/src=\"\/(?!\/)/gi, 'src="');
             //Call function to remove extraneous stuff
             newData = nodeRewrite(newData);
+            parser(file);
             //Rewrite file
             fs.writeFile(file, newData, 'utf-8', (err)=>{
                 if(err){
@@ -110,23 +125,9 @@ module.exports = function nodeScraper(req, res, next){
         $('header').remove();
         html = $.html();
         //Don't let it run all day
+        //Send version number
         versionNo = temp;
-        res.versionNo = temp;
+        //Return full html to be written as file instead of html and cheerio data
         return html;
-    }
-
-    //Recursively delete folders
-    function deleteFolderRecursive(path) {
-      if( fs.existsSync(path) ) {
-        fs.readdirSync(path).forEach(function(file,index){
-          var curPath = path + "/" + file;
-          if(fs.lstatSync(curPath).isDirectory()) { // recurse
-            deleteFolderRecursive(curPath);
-          } else { // delete file
-            fs.unlinkSync(curPath);
-          }
-        });
-        fs.rmdirSync(path);
-      }
     }
 }
