@@ -7,6 +7,8 @@ const path = require( 'path' );
 const mongoose = require('mongoose');
 const scraper = require('./scraper');
 const dbController = require('./controllers/dbController');
+//Add middleware to check version of various sites
+const version = require('./versionCheck')
 const fs = require('fs');
 mongoose.connect('mongodb://Doc:tor@ds059215.mongolab.com:59215/doc-tor');
 const db = mongoose.connection;
@@ -37,7 +39,7 @@ app.get('/' , function(req, res){
 /////////////////////////////////////////////////
 //// Handle req for node zip
 /////////////////////////////////////////////////
-app.get('/node', scraper, dbController.addToDB, function(req,res){
+app.get('/node', version.node, dbController.needUpdate, scraper, dbController.addToDB, function(req,res){
   console.log(res.filePath, "HELLO ");
   res.sendFile(path.resolve(res.filePath));
   console.log("sending full html back to client");
@@ -57,7 +59,7 @@ app.post('/error', function(req, res){
 app.delete('/node', function(req, res){
 
 });
-/////////////////////////////////////////////////
+//////////////////////////////////////////////////
 // handle changes to node update DB
 //////////////////////////////////////////////////
 app.put('/node', function(req, res){

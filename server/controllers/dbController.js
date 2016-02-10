@@ -1,9 +1,26 @@
 'use strict';
 const Update = require('./updateModel');
-
+const path = require('path');
 
 module.exports = {
 
+  needUpdate : function(req, res, next){
+  let query = Update.where({version: res.versionNo});
+      query.findOne( function (err, foundUpdate){
+        //takes in an err from findOne and the returned Doc
+        if(err)console.log(err);
+        if(!foundUpdate){
+        //no update found, send continue the middleware!
+          next();
+        }
+
+        if ( foundUpdate ){ // if the Doc exists update
+            //If we find that we have the same version, send the version we already have
+            //break out of the middleware!
+            return res.sendFile(path.resolve(foundUpdate.fileLocation));
+        }
+      });
+  },
   addToDB : function(req, res, next){
     //assigns a new Update document to the variable update
     let update = new Update ({name : res.sourceName,
