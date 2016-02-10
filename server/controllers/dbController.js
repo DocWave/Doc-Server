@@ -5,7 +5,7 @@ const path = require('path');
 module.exports = {
 
   needUpdate : function(req, res, next){
-  let query = Update.where({version: res.versionNo});
+      let query = Update.where({version: res.versionNo});
       query.findOne( function (err, foundUpdate){
         //takes in an err from findOne and the returned Doc
         if(err)console.log(err);
