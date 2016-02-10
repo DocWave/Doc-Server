@@ -27,7 +27,7 @@ module.exports = function nodeScraper(req, res, next){
     var archive = archiver('zip');
 
     //Create output file stream from SCRAPE_DIR
-    var output = fs.createWriteStream(SCRAPE_DIR.slice(0,-1)+'.zip');
+    var output = fs.createWriteStream(SCRAPE_DIR.slice(0,-1)+res.versionNo+'.zip');
     //Check to see if folder was deleted or not, and if so, delete it
     folderHandler.checkFolders(BASE_DIR);
 
@@ -56,7 +56,7 @@ module.exports = function nodeScraper(req, res, next){
         folderHandler.deleteFolderRecursive(BASE_DIR);
         res.filePath = output.path;
         res.sourceName = SOURCE_NAME;
-        res.versionNo = versionNo;
+        // res.versionNo = versionNo;
         next();
     });
 
@@ -126,19 +126,19 @@ module.exports = function nodeScraper(req, res, next){
     function nodeRewrite(html) {
         var $ = cheerio.load(html);
         //store in a temp first, in case it doesnt exist
-        var temp = $('header h1').text();
-        if(!versionNo && temp){
-            //Grab the part that matches version number and trim it to get rid of spaces
-            //then slice off the first character (the v)
-            temp = temp.match(/\sv.*\s/)[0].trim().slice(1);
-        }
+        // var temp = $('header h1').text();
+        // if(!versionNo && temp){
+        //     //Grab the part that matches version number and trim it to get rid of spaces
+        //     //then slice off the first character (the v)
+        //     temp = temp.match(/\sv.*\s/)[0].trim().slice(1);
+        // }
         $('#column2').remove();
         $('#toc').remove();
         $('header').remove();
         html = $.html();
         //Don't let it run all day
         //Send version number
-        versionNo = temp;
+        // versionNo = temp;
         //Return full html to be written as file instead of html and cheerio data
         return html;
     }
