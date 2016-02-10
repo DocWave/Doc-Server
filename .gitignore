@@ -1,6 +1,12 @@
 # npm dependencies
 node_modules/*
 
+#docs
+docs
+test
+ignore_test_files
+website-scraper
+
 #include edited version of website_scraper
 !node_modules/website-scraper
 node_modules/website-scraper/node_modules
