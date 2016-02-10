@@ -3,9 +3,9 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var updateSchema = new Schema({
-  name: String,
-  version: String,
-  fileLocation:  String,
+  sourceName: String,
+  versionNo: String,
+  filePath:  String,
   retrieved: { type: Date, default: Date.now }
 });
 
