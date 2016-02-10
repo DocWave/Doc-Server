@@ -10,7 +10,6 @@ module.exports = function parser(file, db, i) {
     // var sqlstr = "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);";
     console.log(sqlstr.length)
     var filename = file.slice(file.lastIndexOf('/')+1)
-
     var data = fs.readFileSync(file, 'utf-8');
         var $ = cheerio.load(data);
         var methods = [];
@@ -28,7 +27,7 @@ module.exports = function parser(file, db, i) {
                 if(name.match(/^Class\sMethod:\s/)){
                     name = name.replace(/^Class\sMethod:\s/, "")
                 }
-                sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'method', '${link}');`;
+                sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'method', '${filename.concat(link)}');`;
                 //Push into methods for determining if its an addon page or not
                 i++;
                 methods.push($(el).attr('href'));
@@ -38,7 +37,7 @@ module.exports = function parser(file, db, i) {
                 //sometimes classes have a . in them too we will grab classes later
                 if(!name.match(/Class/)){
                     name = name.slice(0,-1);
-                    sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'property', '${link}');`;
+                    sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'property', '${filename.concat(link)}');`;
                     i++;
                 }
             }
@@ -58,7 +57,7 @@ module.exports = function parser(file, db, i) {
                 name = classname.concat("."+name);
                 //Concatenate the classname and event name and
                 //get rid of # in h2 className
-                sqlstr += `INSERT INTO docsearch VALUES(${i}, '${name}', 'event', '${link}');`;
+                sqlstr += `INSERT INTO docsearch VALUES(${i}, '${name}', 'event', '${filename.concat(link)}');`;
                 i++;
 
             }
@@ -75,7 +74,7 @@ module.exports = function parser(file, db, i) {
             //Get Module name and put in database
             var name = $('#apicontent > h1').text().replace(/#/g, "");
             var link = $('#apicontent > h1 a').attr('href');
-            sqlstr += `INSERT INTO docsearch VALUES(${i}, '${name}', 'module', '${link}');`;
+            sqlstr += `INSERT INTO docsearch VALUES(${i}, '${name}', 'module', '${filename.concat(link)}');`;
             i++;
 
             //Time to grab classes and other stragglers
@@ -86,7 +85,7 @@ module.exports = function parser(file, db, i) {
                 if(name.match(/^Class\:\s/g)){
                     //replace the class and get rid of the #
                     name = name.replace(/^Class\:\s/g, "").replace(/\'/g,"").slice(0, -1);
-                    sqlstr += `INSERT INTO docsearch VALUES(${i}, '${name}', 'class', '${link}');`;
+                    sqlstr += `INSERT INTO docsearch VALUES(${i}, '${name}', 'class', '${filename.concat(link)}');`;
                     i++;
 
                 }
@@ -94,7 +93,7 @@ module.exports = function parser(file, db, i) {
                 // else if(name.match(/\.\w+(?!\()#/g) || name.match(/.+\[.*\]#/g)){
                 //     // name = name.replace(/#$/g, "");
                 //     name = name.replace(/\'/g,"").slice(0,-1);
-                //     sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'property', '${link}');`;
+                //     sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'property', '${filename.concat(link)}');`;
                 //     i++;
                 //
                 // }
@@ -102,7 +101,7 @@ module.exports = function parser(file, db, i) {
                 // events props classes and methods
                 else if(!name.match(/Class|Event|\(.+\)|\.\w+(?!\()/)){
                     name = name.replace(/\'/g, "").slice(0,-1);
-                    sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'chapter', '${link}');`;
+                    sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'chapter', '${filename.concat(link)}');`;
                     i++;
 
                 }
