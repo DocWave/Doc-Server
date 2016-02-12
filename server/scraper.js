@@ -95,7 +95,6 @@ module.exports = function nodeScraper(req, res, next){
                 archive.bulk([
                     { expand: true, cwd: BASE_DIR, src: ['**'], dest: SCRAPE_DIR.slice(0,-1)+'.docs'}
                 ]);
-                // archive.append()
                 //Finalize archive and prevent further appends
                 archive.finalize();
             }).catch((val)=>{
@@ -125,20 +124,10 @@ module.exports = function nodeScraper(req, res, next){
     //Specific nodejs.com documentation removal of ToC and sidebar
     function nodeRewrite(html) {
         var $ = cheerio.load(html);
-        //store in a temp first, in case it doesnt exist
-        // var temp = $('header h1').text();
-        // if(!versionNo && temp){
-        //     //Grab the part that matches version number and trim it to get rid of spaces
-        //     //then slice off the first character (the v)
-        //     temp = temp.match(/\sv.*\s/)[0].trim().slice(1);
-        // }
         $('#column2').remove();
         $('#toc').remove();
         $('header').remove();
         html = $.html();
-        //Don't let it run all day
-        //Send version number
-        // versionNo = temp;
         //Return full html to be written as file instead of html and cheerio data
         return html;
     }
