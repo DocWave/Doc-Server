@@ -99,7 +99,7 @@ module.exports = function parser(file, db, i) {
                 // }
                 // Otherwise they are probably sections / chapters.  to be safe, check against matches for
                 // events props classes and methods
-                else if(!name.match(/Class|Event|\(.+\)|\.\w+(?!\()/)){
+                else if(!name.match(/Class|Event|\(.*\)|\.\w+(?!\()/)){
                     name = name.replace(/\'/g, "").slice(0,-1);
                     sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'chapter', '${filename.concat(link)}');`;
                     i++;
