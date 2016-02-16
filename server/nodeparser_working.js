@@ -8,7 +8,7 @@ module.exports = function parser(file, db, i) {
     //move outside of function?
     var sqlstr = "";
     // var sqlstr = "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);";
-    console.log(sqlstr.length)
+    // console.log(sqlstr.length)
     var filename = file.slice(file.lastIndexOf('/')+1)
     var data = fs.readFileSync(file, 'utf-8');
         var $ = cheerio.load(data);

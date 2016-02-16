@@ -5,7 +5,7 @@ const express = require( 'express' );
 const bodyParser = require( 'body-parser' );
 const path = require( 'path' );
 const mongoose = require('mongoose');
-const scraper = require('./scraper');
+const scrapeParseWrite = require('./scrapeParseWrite');
 const dbController = require('./controllers/dbController');
 //Add middleware to check version of various sites
 const version = require('./versionCheck')
@@ -39,10 +39,15 @@ app.get('/' , function(req, res){
 /////////////////////////////////////////////////
 //// Handle req for node zip
 /////////////////////////////////////////////////
-app.get('/node', version.node, dbController.needUpdate, scraper, dbController.addToDB, function(req,res){
-  console.log(res.filePath, "HELLO ");
-  res.sendFile(path.resolve(res.filePath));
-  console.log("sending full html back to client");
+// app.get('/node', version.node, dbController.needUpdate, scraper, dbController.addToDB, function(req,res){
+//app.get('/node', version.node, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
+/////////////////////////////////////////////////
+/// BIND SCRAPEPARSEWRITE.CREATEZIP TO ITSELF SO IT BIND TO THE CORRECT CONTEXT
+/////////////////////////////////////////////////
+app.get('/node', version.node, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
+    console.log(res.filePath, "HELLO ");
+    res.sendFile(path.resolve(req.filePath));
+    console.log("sending full html back to client");
 });
 //////////////////////////////////////////////////
 // Test crash reporting route
@@ -65,6 +70,7 @@ app.delete('/node', function(req, res){
 app.put('/node', function(req, res){
 
 });
+
 
 ///////////////////////////////////////////////
 // Handle requests for data
