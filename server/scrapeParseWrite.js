@@ -1,3 +1,4 @@
+'use strict'
 var scraper = require('website-scraper');
 var fs = require('fs');
 var cheerio = require('cheerio');
@@ -14,29 +15,32 @@ var parseEntry = require('./parseEntryPoint');
 *  and temporary directory to be documentation/
 *  so docs/+SCRAPE_DIR+/documents will be DOWNLOAD_DIR
 *  BASE_DIR will be docs/SCRAPE_DIR  maybe rename SCRAPE_DIR?
-*/ function(req, res, next)
+*/
 var scrapeParseWrite = {
     URL_TO_SCRAPE: 'http://nodejs.org/api/',
     SOURCE_NAME: 'Node API',
     CSS_DIR: 'assets',
     JS_DIR: 'assets',
     SCRAPE_DIR: 'node/',
-    BASE_DIR: 'docs/'+SCRAPE_DIR,
-    DOWNLOAD_DIR: BASE_DIR+'documents/',
-    //Initialize Archiver
-
+    //FIX THIS LATER TO ADD IN ANYTHING, AND BE PASSED IN AS AN OBJECT
+    //WHY CANT I USE THIS. HERE?
+    BASE_DIR: 'docs/node/',
+    DOWNLOAD_DIR: 'docs/node/documents/',
 
     createZip: function(req, res, next){
-        req.archive = archiver('zip'),
-
+        //Initialize Archiver
+        req.archive = archiver('zip');
         //check and create folder to store zip if it doesn't exist
-        folderHandler.createFolder('zips/'+this.SCRAPE_DIR);
+        // console.log(this.SCRAPE_DIR, this.JS_DIR, this.URL_TO_SCRAPE, this.SOURCE_NAME, this.CSS_DIR, this.BASE_DIR, this.DOWNLOAD_DIR);
+        var zipFolder = 'zips/'+this.SCRAPE_DIR;
+        folderHandler.createFolder(zipFolder);
         //Create output file stream from SCRAPE_DIR
-        req.output = fs.createWriteStream(this.SCRAPE_DIR.slice(0,-1)+req.versionNo+'.zip');
+        req.output = fs.createWriteStream(zipFolder+'/'+this.SCRAPE_DIR.slice(0,-1)+req.versionNo+'.zip');
         this.scrape(req, res, next);
     },
 
     scrape: function(req, res, next){
+        console.log('sup');
         //Check to see if folder was deleted or not, and if so, delete it
         folderHandler.checkToDelete(this.BASE_DIR);
 
@@ -59,7 +63,7 @@ var scrapeParseWrite = {
         }).catch(console.log);
 
         //Event listener for end of zipping function - delete folder
-        req.output.on('close', function () {
+        req.output.on('close', ()=>{
             console.log(req.archive.pointer() + ' total bytes');
             console.log('archiver has been finalized and the output file descriptor has closed.');
             folderHandler.deleteFolderRecursive(this.BASE_DIR);
@@ -76,8 +80,12 @@ var scrapeParseWrite = {
 
 
     //get list of files to change the hrefs for css and js files to exclude beggining / if they have it
-    getFiles: funtion(req, res, next) {
-        var list;
+    getFiles: function(req, res, next) {
+        let list;
+
+        //Add that because this object will be out of context in readdir
+        // and promise
+        let that = this;
         //Get list of files in directory
         fs.readdir(this.DOWNLOAD_DIR, (err, file) => {
             list = file;
@@ -87,6 +95,7 @@ var scrapeParseWrite = {
                 //only edit html files
                 if(name.match(/\.html$/)){
                     //pass file names off to be read and rewritten
+                    // console.log(this.SCRAPE_DIR, "HEWHSH")
                     this.editFile(req, res, next, name);
                 }
             });
@@ -103,8 +112,9 @@ var scrapeParseWrite = {
                 req.archive.pipe(req.output);
                 //specify what to zip up (in this case the directory itself) and append them to the zip
                 //Make the directory the zip file extracts to to be based on the SCRAPE_DIR
+                //Use that, since this is bound to archive module
                 req.archive.bulk([
-                    { expand: true, cwd: this.BASE_DIR, src: ['**'], dest: this.SCRAPE_DIR.slice(0,-1)+'.docs'}
+                    { expand: true, cwd: that.BASE_DIR, src: ['**'], dest: that.SCRAPE_DIR.slice(0,-1)+'.docs'}
                 ]);
                 //Finalize archive and prevent further appends
                 req.archive.finalize();
