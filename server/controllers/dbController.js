@@ -6,7 +6,7 @@ const fs = require('fs');
 module.exports = {
 
   needUpdate : function(req, res, next){
-      let query = Update.where({versionNo: res.versionNo});
+      let query = Update.where({versionNo: req.versionNo});
       query.findOne( function (err, foundUpdate){
         //takes in an err from findOne and the returned Doc
         if(err)console.log(err);
@@ -37,14 +37,14 @@ module.exports = {
   },
   addToDB : function(req, res, next){
     //assigns a new Update document to the variable update
-    let update = new Update ({sourceName : res.sourceName,
-                              versionNo : res.versionNo,
-                              filePath : res.filePath,
+    let update = new Update ({sourceName : req.sourceName,
+                              versionNo : req.versionNo,
+                              filePath : req.filePath,
                               retrieved : Date.now()});
 
     //store our query in a variable
     //fileName = the name of documentation
-    let query = Update.where({versionNo: res.versionNo});
+    let query = Update.where({versionNo: req.versionNo});
     // console.log(res.fileName, res.versionNo, res.filePath);
     //Checks database to see if doc already exists
     // runs callback found(err,foundUpdate)
@@ -60,7 +60,7 @@ module.exports = {
           if(err) {
             console.error(err);
           }else {
-            console.log (`${res.sourceName} - versionNo:${res.versionNo} has been added to the database.`);
+            console.log (`${req.sourceName} - versionNo:${req.versionNo} has been added to the database.`);
             next();
           }
         });

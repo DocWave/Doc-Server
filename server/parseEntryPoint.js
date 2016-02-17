@@ -20,16 +20,15 @@ var Promise = require('bluebird')
             list.forEach((name) => {
                 // Add directory name to file name for FS
                 name = downloadDir.concat(name);
+                //For node, don't parse all.html, it will break the sql
                 if(name.match(/\.html$/) && !name.match(/all\.html/)){
-                    // console.log(name);
                     storage = parser(name, storage.DB, storage.index);
-                    // console.log(parser(name, storage.DB, storage.index));
                 }
             });
-            // fs.writeFileSync('docs/folders', folder)
+            //Export the database so we can write it to file
             var data = db.export();
+            //Create a buffer for writing to
             var buff = new Buffer(data);
-            // fs.writeFileSync('docs/'+filename+'.sqlite', buff);
             fs.writeFileSync(baseDir+'/documents.sqlite', buff);
 
             //Be sure to resolve the promise when readdir is done

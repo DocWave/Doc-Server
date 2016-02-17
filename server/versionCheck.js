@@ -8,7 +8,7 @@ var versionCheck = {
             var $ = cheerio.load(body);
             var temp = $('header h1').text();
             temp = temp.match(/\sv.*\s/)[0].trim().slice(1);
-            res.versionNo = temp;
+            req.versionNo = temp;
             next();
         });
     },
