@@ -108,7 +108,7 @@ var scrapeParseWrite = {
                 //Pipe zip to the output file
                 req.archive.pipe(req.output);
                 //specify what to zip up (in this case the directory itself) and append them to the zip
-                //Make the directory the zip file extracts to to be based on the SCRAPE_DIR
+                //Make the directory the zi1p file extracts to to be based on the SCRAPE_DIR
                 //Use that, since this is bound to archive module
                 req.archive.bulk([
                     { expand: true, cwd: that.BASE_DIR, src: ['**'], dest: that.SCRAPE_DIR.slice(0,-1)+'.docs'}
