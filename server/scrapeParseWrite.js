@@ -10,7 +10,7 @@ var parseEntry = require('./parseEntryPoint');
 
 //Specify type of archive - zip or tar
 //Constants to be changed or added later with inputs to program
-/* Want structure of directory of files to be eg /node.docs/docs/
+/* Structure of directory to be eg /node.docs/docs/
 *  with the sql file in /node.docs
 *  and temporary directory to be documentation/
 *  so docs/+SCRAPE_DIR+/documents will be DOWNLOAD_DIR
@@ -31,7 +31,6 @@ var scrapeParseWrite = {
         //Initialize Archiver
         req.archive = archiver('zip');
         //check and create folder to store zip if it doesn't exist
-        // console.log(this.SCRAPE_DIR, this.JS_DIR, this.URL_TO_SCRAPE, this.SOURCE_NAME, this.CSS_DIR, this.BASE_DIR, this.DOWNLOAD_DIR);
         var zipFolder = 'zips/'+this.SCRAPE_DIR;
         folderHandler.createFolder(zipFolder);
         //Create output file stream from SCRAPE_DIR
@@ -40,7 +39,6 @@ var scrapeParseWrite = {
     },
 
     scrape: function(req, res, next){
-        console.log('sup');
         //Check to see if folder was deleted or not, and if so, delete it
         folderHandler.checkToDelete(this.BASE_DIR);
 
@@ -83,8 +81,7 @@ var scrapeParseWrite = {
     getFiles: function(req, res, next) {
         let list;
 
-        //Add that because this object will be out of context in readdir
-        // and promise
+        //Add that because this object will be out of context in archive.bulk
         let that = this;
         //Get list of files in directory
         fs.readdir(this.DOWNLOAD_DIR, (err, file) => {
@@ -102,16 +99,14 @@ var scrapeParseWrite = {
 
             //Since readdir is async, and is also called by parseEntry, we need to promisify it, and
             //send the resolve over
-            var p1 = new Promise((resolve, reject)=>{
-                parseEntry.allFiles(this.BASE_DIR, this.DOWNLOAD_DIR, resolve, reject);
-            });
+            git
 
             p1.then(function(val){
                 //Time to zip the file
                 //Pipe zip to the output file
                 req.archive.pipe(req.output);
                 //specify what to zip up (in this case the directory itself) and append them to the zip
-                //Make the directory the zip file extracts to to be based on the SCRAPE_DIR
+                //Make the directory 1 the zip file extracts to to be based on the SCRAPE_DIR
                 //Use that, since this is bound to archive module
                 req.archive.bulk([
                     { expand: true, cwd: that.BASE_DIR, src: ['**'], dest: that.SCRAPE_DIR.slice(0,-1)+'.docs'}
@@ -130,8 +125,12 @@ var scrapeParseWrite = {
             //Remove front slash on src and href of js and css file locations
             var newData = data.replace(/href=\"\/(?!\/)/gi, 'href="').
                 replace(/src=\"\/(?!\/)/gi, 'src="');
+            //Made the rewriter universal for whatever we are scraping
+            //Will need to impliment checks to make sure we have methods for those sites
+            //Try catch maybe?
+            var writeMethod = this.SCRAPE_DIR.slice(0, -1)
             //Call function to remove extraneous stuff
-            newData = rewrite.node(req, res, next, newData);
+            newData = rewrite[writeMethod](req, res, next, newData);
             //Rewrite file
             fs.writeFile(file, newData, 'utf-8', (err)=>{
                 if(err){
