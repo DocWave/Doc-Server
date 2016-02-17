@@ -41,14 +41,18 @@ app.get('/' , function(req, res){
 /////////////////////////////////////////////////
 //// Handle req for node zip
 /////////////////////////////////////////////////
-app.get('/mdn', mdn.download, mdn.getJavascript, function(req,res){
+/* TODO: optimize download and extraction
+  NOTE:mdn.download only provides a link for request module,
+  mdn.getJavascript actually downloads the .tgz
+*/
+app.get('/mdn', mdn.download, /*mdn.getJavascript, mdn.extract,*/ function(req,res){
   console.log('finished');
 });
-app.get('/node', version.node, dbController.needUpdate, scraper, dbController.addToDB, function(req,res){
-  console.log(res.filePath, "HELLO ");
-  res.sendFile(path.resolve(res.filePath));
-  console.log("sending full html back to client");
-});
+// app.get('/node', version.node, dbController.needUpdate, scraper, dbController.addToDB, function(req,res){
+//   console.log(res.filePath, "HELLO ");
+//   res.sendFile(path.resolve(res.filePath));
+//   console.log("sending full html back to client");
+// });
 //////////////////////////////////////////////////
 // Test crash reporting route
 //////////////////////////////////////////////////

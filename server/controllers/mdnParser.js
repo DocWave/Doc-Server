@@ -15,12 +15,13 @@ let mdn = {
 			let $ = cheerio.load( html.body );
 			let downloadLink = "https://kapeli.com/" + $( ".download:contains('JavaScript.tgz')" )
 				.attr( "href" );
+			// downloadLink = downloadLink.slice( 0, downloadLink.lastIndexOf( '.' ) ) + "tar.gz";
 			res.downloadLink = downloadLink;
 			next();
 		} );
 	},
 	getJavascript: function ( req, res, next ) {
-		var write = targz().createWriteStream( './JavaScript.tgz' );
+		var write = fs.createWriteStream( './JavaScript.tgz' );
 		var read = request( res.downloadLink )
 			.on( 'error', function ( err ) {
 				throw err;
@@ -35,33 +36,34 @@ let mdn = {
 		read.on( 'finish', function () {
 			read.close( next() );
 		});
-	}
-  // extract: function (req, res, next) {
-  //   targz().extract('./JavaScript.tgz', './', function(err){
-  //     if(err)
-  //       console.log('Something is wrong ', err.stack);
-  //     console.log('Job done!');
-	// 		next();
-  //   });
-	// 	// var extractor = tar.Extract( {
-	// 	// 		path: './'
-	// 	// 	})
-	// 	// 	.on( 'error', function ( err ) {
-	// 	// 		throw err;
-	// 	// 	})
-	// 	// 	.on( 'end', function () {
-	// 	// 		console.log( 'extracted' );
-	// 	// 	});
-	// 	// var extracting = fs.createReadStream( './JavaScript.tgz' )
-	// 	// 	.on( 'error', function ( err ) {
-	// 	// 		throw err;
-	// 	// 	})
-	// 	// 	.pipe(inflate)
-	// 	// 	.pipe(extractor);
-	// 	// extracting.on( 'finish', function () {
-	// 	// 	next();
-	// 	// });
-  // }
+	},
+  extract: function (req, res, next) {
+    // targz().extract('./JavaScript.tgz', './', function(err){
+    //   if(err)
+    //     console.log('Something is wrong ', err.stack);
+    //   console.log('Job done!');
+		// 	next();
+    // });
+		console.log('extracting...');
+		var extractor = tar.Extract( {
+				path: './'
+			})
+			.on( 'error', function ( err ) {
+				throw err;
+			})
+			.on( 'end', function () {
+				console.log( 'extracted' );
+			});
+		var extracting = fs.createReadStream( './JavaScript.tgz' )
+			.on( 'error', function ( err ) {
+				throw err;
+			})
+			.pipe(inflate)
+			.pipe(extractor);
+		extracting.on( 'finish', function () {
+			next();
+		});
+  }
 };
 
 module.exports = mdn;

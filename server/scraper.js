@@ -3,7 +3,7 @@ var fs = require('fs');
 var cheerio = require('cheerio');
 var archiver = require('archiver');
 
-var rewrite = require('./rewrite')
+var rewrite = require('./rewrite');
 var folderHandler = require('./folderHandler');
 var parseEntry = require('./parseEntryPoint');
 
@@ -14,23 +14,24 @@ var parseEntry = require('./parseEntryPoint');
 *  and temporary directory to be documentation/
 *  so docs/+SCRAPE_DIR+/documents will be DOWNLOAD_DIR
 *  BASE_DIR will be docs/SCRAPE_DIR  maybe rename SCRAPE_DIR?
-*/ function(req, res, next)
+*/
+// function(req, res, next)
 var scrapeParseWrite = {
     URL_TO_SCRAPE: 'http://nodejs.org/api/',
     SOURCE_NAME: 'Node API',
     CSS_DIR: 'assets',
     JS_DIR: 'assets',
     SCRAPE_DIR: 'node/',
-    BASE_DIR: 'docs/'+SCRAPE_DIR,
-    DOWNLOAD_DIR: BASE_DIR+'documents/',
+    BASE_DIR: 'docs/'+ this.SCRAPE_DIR,
+    DOWNLOAD_DIR: this.BASE_DIR+'documents/',
     //Initialize Archiver
 
 
     createZip: function(req, res, next){
-        req.archive = archiver('zip'),
+        req.archive = archiver('zip');
 
         //check and create folder to store zip if it doesn't exist
-        folderHandler.createFolder('zips/'+this.SCRAPE_DIR);
+        folderHandler.createFolder('zips/' + this.SCRAPE_DIR);
         //Create output file stream from SCRAPE_DIR
         req.output = fs.createWriteStream(this.SCRAPE_DIR.slice(0,-1)+req.versionNo+'.zip');
         this.scrape(req, res, next);
@@ -76,7 +77,7 @@ var scrapeParseWrite = {
 
 
     //get list of files to change the hrefs for css and js files to exclude beggining / if they have it
-    getFiles: funtion(req, res, next) {
+    getFiles: function(req, res, next) {
         var list;
         //Get list of files in directory
         fs.readdir(this.DOWNLOAD_DIR, (err, file) => {
