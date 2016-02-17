@@ -99,14 +99,16 @@ var scrapeParseWrite = {
 
             //Since readdir is async, and is also called by parseEntry, we need to promisify it, and
             //send the resolve over
-            git
+            var p1 = new Promise((resolve, reject)=>{
+                parseEntry.allFiles(this.BASE_DIR, this.DOWNLOAD_DIR, resolve, reject);
+            });
 
             p1.then(function(val){
                 //Time to zip the file
                 //Pipe zip to the output file
                 req.archive.pipe(req.output);
                 //specify what to zip up (in this case the directory itself) and append them to the zip
-                //Make the directory 1 the zip file extracts to to be based on the SCRAPE_DIR
+                //Make the directory the zip file extracts to to be based on the SCRAPE_DIR
                 //Use that, since this is bound to archive module
                 req.archive.bulk([
                     { expand: true, cwd: that.BASE_DIR, src: ['**'], dest: that.SCRAPE_DIR.slice(0,-1)+'.docs'}
