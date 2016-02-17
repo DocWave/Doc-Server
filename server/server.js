@@ -4,19 +4,21 @@
 const express = require( 'express' );
 const bodyParser = require( 'body-parser' );
 const path = require( 'path' );
+const fs = require('fs');
 const mongoose = require('mongoose');
 const scraper = require('./scraper');
 const dbController = require('./controllers/dbController');
 //Add middleware to check version of various sites
-const version = require('./versionCheck')
-const fs = require('fs');
+const version = require('./versionCheck');
+const mdn = require('./controllers/mdnParser');
+
 mongoose.connect('mongodb://Doc:tor@ds059215.mongolab.com:59215/doc-tor');
 const db = mongoose.connection;
 const app = express();
 
 require('dns').lookup(require('os').hostname(), function (err, add, fam) {
   console.log('addr: '+add);
-})
+});
 
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
@@ -39,6 +41,9 @@ app.get('/' , function(req, res){
 /////////////////////////////////////////////////
 //// Handle req for node zip
 /////////////////////////////////////////////////
+app.get('/mdn', mdn.download, mdn.getJavascript, mdn.extract, function(req,res){
+  console.log('finished');
+});
 app.get('/node', version.node, dbController.needUpdate, scraper, dbController.addToDB, function(req,res){
   console.log(res.filePath, "HELLO ");
   res.sendFile(path.resolve(res.filePath));

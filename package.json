@@ -17,8 +17,13 @@
     "archiver": "^0.21.0",
     "body-parser": "^1.14.2",
     "express": "^4.13.4",
+    "mongoose": "^4.4.2",
+    "nightmare": "^2.1.6",
     "path": "^0.12.7",
+    "phantom": "^0.9.0",
     "sql.js": "^0.2.21",
-    "mongoose": "^4.4.2"
+    "tar": "^2.2.1",
+    "tar.gz": "^1.0.3",
+    "vo": "^1.0.3"
   }
 }
