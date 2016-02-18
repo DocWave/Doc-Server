@@ -28,7 +28,7 @@ module.exports = {
             }
             //We didn't find the file in the directory, so proceed as usual
             catch(e){
-                console.log("File not found", e);
+                // console.log("File not found", e);
                 next();
             }
 

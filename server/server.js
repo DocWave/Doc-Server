@@ -1,17 +1,17 @@
-
 'use strict';
 
 const express = require( 'express' );
 const bodyParser = require( 'body-parser' );
 const path = require( 'path' );
-const fs = require('fs');
 const mongoose = require('mongoose');
-const scraper = require('./scraper');
 const dbController = require('./controllers/dbController');
+//Scraping middleware
+const scrapeParseWrite = require('./middleware/scrapeParseWrite');
+//Middleware to add proper request properties for each site to scrape
+const requestProps = require('./middleware/requestProps')
 //Add middleware to check version of various sites
-const version = require('./versionCheck');
-const mdn = require('./controllers/mdnParser');
-
+const version = require('./middleware/versionCheck')
+const fs = require('fs');
 mongoose.connect('mongodb://Doc:tor@ds059215.mongolab.com:59215/doc-tor');
 const db = mongoose.connection;
 const app = express();
@@ -37,16 +37,24 @@ app.get('/' , function(req, res){
 
 
 /***** API *****/
-
-/////////////////////////////////////////////////
-//// Handle req for node zip
-/////////////////////////////////////////////////
 /* TODO: optimize download and extraction
   NOTE:mdn.download only provides a link for request module,
   mdn.getJavascript actually downloads the .tgz
 */
 app.get('/mdn', mdn.download, /*mdn.getJavascript, mdn.extract,*/ function(req,res){
   console.log('finished');
+/////////////////////////////////////////////////
+//// Handle req for node zip
+/////////////////////////////////////////////////
+// app.get('/node', version.node, dbController.needUpdate, scraper, dbController.addToDB, function(req,res){
+//app.get('/node', version.node, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
+/////////////////////////////////////////////////
+/// BIND SCRAPEPARSEWRITE.CREATEZIP TO ITSELF SO IT BIND TO THE CORRECT CONTEXT
+/////////////////////////////////////////////////
+app.get('/node', requestProps.node, version.node, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
+    console.log(res.filePath, "HELLO ");
+    res.sendFile(path.resolve(req.filePath));
+    console.log("sending full html back to client");
 });
 // app.get('/node', version.node, dbController.needUpdate, scraper, dbController.addToDB, function(req,res){
 //   console.log(res.filePath, "HELLO ");

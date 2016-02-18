@@ -6,7 +6,6 @@ var Promise = require('bluebird')
 
  var parseEntry = {
     allFiles: function(baseDir, downloadDir, resolve, reject){
-        // var folder = [];
         var db = new sql.Database();
         //initialize sql query
         //move outside of function?
