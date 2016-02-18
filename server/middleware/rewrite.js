@@ -11,6 +11,15 @@ var rewrite = {
         html = $.html();
         //Return full html to be written as file instead of html and cheerio data
         return html;
+    },
+    express: function(req, res, next, html){
+        var $ = cheerio.load(html);
+        $('header').remove();
+        $('footer').remove();
+        // $('header').remove();
+        html = $.html();
+        //Return full html to be written as file instead of html and cheerio data
+        return html;
     }
 
 }
