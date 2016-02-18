@@ -8,7 +8,7 @@ module.exports = function parser(file, db, i) {
     //move outside of function?
     var sqlstr = "";
     // var sqlstr = "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);";
-    console.log(sqlstr.length)
+    // console.log(sqlstr.length)
     var filename = file.slice(file.lastIndexOf('/')+1)
     var data = fs.readFileSync(file, 'utf-8');
         var $ = cheerio.load(data);
@@ -99,7 +99,7 @@ module.exports = function parser(file, db, i) {
                 // }
                 // Otherwise they are probably sections / chapters.  to be safe, check against matches for
                 // events props classes and methods
-                else if(!name.match(/Class|Event|\(.+\)|\.\w+(?!\()/)){
+                else if(!name.match(/Class|Event|\(.*\)|\.\w+(?!\()/)){
                     name = name.replace(/\'/g, "").slice(0,-1);
                     sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'chapter', '${filename.concat(link)}');`;
                     i++;

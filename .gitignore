@@ -6,6 +6,7 @@ docs
 test
 ignore_test_files
 website-scraper
+zips
 
 #include edited version of website_scraper
 !node_modules/website-scraper
@@ -16,3 +17,6 @@ Doc-tor-darwin-x64
 
 # front-end build
 build
+
+# misc
+scraper.bak.js

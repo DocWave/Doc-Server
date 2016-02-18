@@ -6,8 +6,9 @@ const fs = require('fs');
 module.exports = {
 
   needUpdate : function(req, res, next){
-      let query = Update.where({versionNo: res.versionNo});
+      let query = Update.where({versionNo: req.versionNo, sourceName: req.scrapeProps.SOURCE_NAME});
       query.findOne( function (err, foundUpdate){
+        //   console.log(err, "HEY", foundUpdate, req.sourceName)
         //takes in an err from findOne and the returned Doc
         if(err)console.log(err);
         // console.log(foundUpdate, "FOUND IT");
@@ -28,7 +29,7 @@ module.exports = {
             }
             //We didn't find the file in the directory, so proceed as usual
             catch(e){
-                console.log("File not found", e);
+                // console.log("File not found", e);
                 next();
             }
 
@@ -37,16 +38,14 @@ module.exports = {
   },
   addToDB : function(req, res, next){
     //assigns a new Update document to the variable update
-    let update = new Update ({sourceName : res.sourceName,
-                              versionNo : res.versionNo,
-                              filePath : res.filePath,
+    let update = new Update ({sourceName : req.sourceName,
+                              versionNo : req.versionNo,
+                              filePath : req.filePath,
                               retrieved : Date.now()});
 
     //store our query in a variable
     //fileName = the name of documentation
-
-    console.log(update);
-    let query = Update.where({versionNo: res.versionNo});
+    let query = Update.where({versionNo: req.versionNo});
     // console.log(res.fileName, res.versionNo, res.filePath);
     //Checks database to see if doc already exists
     // runs callback found(err,foundUpdate)
@@ -62,7 +61,7 @@ module.exports = {
           if(err) {
             console.error(err);
           }else {
-            console.log (`${res.sourceName} - versionNo:${res.versionNo} has been added to the database.`);
+            console.log (`${req.sourceName} - versionNo:${req.versionNo} has been added to the database.`);
             next();
           }
         });
