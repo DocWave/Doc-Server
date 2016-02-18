@@ -19,6 +19,7 @@ let requestProps = {
             //WHY CANT I USE THIS. HERE?
             BASE_DIR: 'docs/node/',
             DOWNLOAD_DIR: 'docs/node/documents/',
+            RECURSIVE: true,
         }
         next();
     },
@@ -50,7 +51,8 @@ let requestProps = {
             //FIX THIS LATER TO ADD IN ANYTHING, AND BE PASSED IN AS AN OBJECT
             //WHY CANT I USE THIS. HERE?
             BASE_DIR: 'docs/express/',
-            DOWNLOAD_DIR: 'docs/node/express/',
+            DOWNLOAD_DIR: 'docs/express/documents/',
+            RECURSIVE: false,
         }
         next();
     },
