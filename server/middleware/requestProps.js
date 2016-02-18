@@ -51,11 +51,22 @@ let requestProps = {
             //WHY CANT I USE THIS. HERE?
             BASE_DIR: 'docs/express/',
             DOWNLOAD_DIR: 'docs/node/express/',
-        }
+        };
         next();
     },
+    mdn: function(req, res, next){
+      req.scrapeProps = {
+        // URL_TO_SCRAPE: ,
+        SOURCE_NAME:"MDN Javascript",
+        // CSS_DIR: ,
+        // JS_DIR: ,
+        SCRAPE_DIR: 'mdn/javascript/',
+        BASE_DIR: 'docs/mdn/javascript/',
+        DOWNLOAD_DIR: 'docs/javascript/documents'
+      };
+      next();
+    }
 
-
-}
+};
 
 module.exports = requestProps;

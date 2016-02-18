@@ -5,12 +5,13 @@ const bodyParser = require( 'body-parser' );
 const path = require( 'path' );
 const mongoose = require('mongoose');
 const dbController = require('./controllers/dbController');
+const mdn = require('./controllers/mdnParser');
 //Scraping middleware
 const scrapeParseWrite = require('./middleware/scrapeParseWrite');
 //Middleware to add proper request properties for each site to scrape
-const requestProps = require('./middleware/requestProps')
+const requestProps = require('./middleware/requestProps');
 //Add middleware to check version of various sites
-const version = require('./middleware/versionCheck')
+const version = require('./middleware/versionCheck');
 const fs = require('fs');
 mongoose.connect('mongodb://Doc:tor@ds059215.mongolab.com:59215/doc-tor');
 const db = mongoose.connection;
@@ -37,12 +38,14 @@ app.get('/' , function(req, res){
 
 
 /***** API *****/
-/* TODO: optimize download and extraction
-  NOTE:mdn.download only provides a link for request module,
-  mdn.getJavascript actually downloads the .tgz
+/*
+  TODO: optimize download and extraction
+  NOTE: mdn.download only provides a link for request module,
+        mdn.getJavascript actually downloads the .tgz
 */
-app.get('/mdn', mdn.download, /*mdn.getJavascript, mdn.extract,*/ function(req,res){
-  console.log('finished');
+app.get('/mdn', /*mdn.download, mdn.getJavascript, mdn.extract,*/ mdn.createClassObj, mdn.createMethodsObj, mdn.createEventObj, mdn.createKWObj, mdn.createFuncObj, function(req,res){
+  console.log("func", req.funcObj, '\nfinished');
+});
 /////////////////////////////////////////////////
 //// Handle req for node zip
 /////////////////////////////////////////////////
