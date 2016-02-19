@@ -3,29 +3,45 @@
 /* Structure of directory to be eg /node.docs/docs/
 *  with the sql file in /node.docs
 *  and temporary directory to be documentation/
-*  so docs/+SCRAPE_DIR+/documents will be DOWNLOAD_DIR
-*  BASE_DIR will be docs/SCRAPE_DIR  maybe rename SCRAPE_DIR?
+*  so docs/+scrapeDir+/documents will be downloadDir
+*  baseDir will be docs/scrapeDir  maybe rename scrapeDir?
 */
 
 let requestProps = {
     node: function(req, res, next){
         req.scrapeProps = {
-            URL_TO_SCRAPE: ['http://nodejs.org/api/'],
-            SOURCE_NAME: 'Node API',
-            CSS_DIR: 'assets',
-            JS_DIR: 'assets',
-            SCRAPE_DIR: 'node/',
+            urlsToScrape: ['http://nodejs.org/api/'],
+            sourceName: 'Node API',
+            cssDir: 'assets',
+            jsDir: 'assets',
+            scrapeDir: 'node/',
             //FIX THIS LATER TO ADD IN ANYTHING, AND BE PASSED IN AS AN OBJECT
             //WHY CANT I USE THIS. HERE?
-            BASE_DIR: 'docs/node/',
-            DOWNLOAD_DIR: 'docs/node/documents/',
+            baseDir: 'docs/node/',
+            downloadDir: 'docs/node/documents/',
             RECURSIVE: true,
+            versionNo: "",
+        }
+        next();
+    },
+    express2: function(req,res,next){
+        req.scrapeProps = {
+            sourceName: 'Express API',
+            cssDir: 'css',
+            jsDir: 'js',
+            scrapeDir: 'express/',
+            //FIX THIS LATER TO ADD IN ANYTHING, AND BE PASSED IN AS AN OBJECT
+            //WHY CANT I USE THIS. HERE?
+            baseDir: 'docs/express/',
+            downloadDir: 'zips/express/express.docs/documents/',
+            RECURSIVE: false,
+            versionNo: "",
         }
         next();
     },
     express: function(req, res, next){
         req.scrapeProps = {
-            URL_TO_SCRAPE: [
+            urlsToScrape: [
                         {url: 'http://expressjs.com/en/4x/api.html', filename: 'api.html'},
                         {url: 'http://expressjs.com/en/starter/installing.html', filename: 'installing.html'},
                         {url: 'http://expressjs.com/en/starter/hello-world.html', filename: 'hello-world.html'},
@@ -44,15 +60,16 @@ let requestProps = {
                         {url: 'http://expressjs.com/en/advanced/best-practice-performance.html', filename: 'best-practice-performance.html'},
                         {url: 'http://expressjs.com/en/advanced/best-practice-security.html', filename: 'best-practice-security.html'}
                     ],
-            SOURCE_NAME: 'Express API',
-            CSS_DIR: 'css',
-            JS_DIR: 'js',
-            SCRAPE_DIR: 'express/',
+            sourceName: 'Express API',
+            cssDir: 'css',
+            jsDir: 'js',
+            scrapeDir: 'express/',
             //FIX THIS LATER TO ADD IN ANYTHING, AND BE PASSED IN AS AN OBJECT
             //WHY CANT I USE THIS. HERE?
-            BASE_DIR: 'docs/express/',
-            DOWNLOAD_DIR: 'docs/express/documents/',
+            baseDir: 'docs/express/',
+            downloadDir: 'docs/express/documents/',
             RECURSIVE: false,
+            versionNo: "",
         }
         next();
     },

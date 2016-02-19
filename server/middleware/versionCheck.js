@@ -9,7 +9,7 @@ var versionCheck = {
             var versionString = $('header h1').text();
             //Match returns an array, first element is the match!!
             versionString = versionString.match(/\sv.*\s/)[0].trim().slice(1);
-            req.versionNo = versionString;
+            req.scrapeProps.versionNo = versionString;
             next();
         });
     },
@@ -20,7 +20,7 @@ var versionCheck = {
             var versionString = $('#application-menu a').attr('href');
             //Match returns an array, first element is the match!! slice off trailing /
             versionString = versionString.match(/[0-9]+.+\//)[0].slice(0,-1)
-            req.versionNo = versionString;
+            req.scrapeProps.versionNo = versionString;
             next();
         })
     }

@@ -14,29 +14,29 @@ var scrapeParseWrite = {
         //Initialize Archiver
         //Specify type of archive - zip or tar
         req.archive = archiver('zip');
-        //check and create folder to store zip if it doesn't exist
-        var zipFolder = 'zips/'+req.scrapeProps.SCRAPE_DIR;
-        folderHandler.createFolder(zipFolder);
-        //Create output file stream from SCRAPE_DIR
-        req.output = fs.createWriteStream(zipFolder+'/'+req.scrapeProps.SCRAPE_DIR.slice(0,-1)+req.versionNo+'.zip');
+        var zipFolder = 'zips/'+req.scrapeProps.scrapeDir;
+        //check to see if folder exists or create folder to store zip if it doesn't exist
+        folderHandler.checkOrCreateFolder(zipFolder);
+        //Create output file stream from scrapeDir
+        req.output = fs.createWriteStream(zipFolder+req.scrapeProps.scrapeDir.slice(0,-1)+req.scrapeProps.versionNo+'.zip');
         this.scrape(req, res, next);
     },
 
     scrape: function(req, res, next){
         //Check to see if folder was deleted or not, and if so, delete it
-        folderHandler.checkToDelete(req.scrapeProps.BASE_DIR);
+        folderHandler.checkToDelete(req.scrapeProps.baseDir);
 
         /*
         * Initialize scraper and provide URL, directory to store files, subdirectories
         * FOR files, recurse 1 level deep, and then edit files
         */
         scraper.scrape({
-          urls: req.scrapeProps.URL_TO_SCRAPE,
-          directory: req.scrapeProps.DOWNLOAD_DIR,
+          urls: req.scrapeProps.urlsToScrape,
+          directory: req.scrapeProps.downloadDir,
           subdirectories: [
         		{directory: 'img', extensions: ['.jpg', '.png', '.svg']},
-        		{directory: req.scrapeProps.JS_DIR, extensions: ['.js']},
-        		{directory: req.scrapeProps.CSS_DIR, extensions: ['.css']}
+        		{directory: req.scrapeProps.jsDir, extensions: ['.js']},
+        		{directory: req.scrapeProps.cssDir, extensions: ['.css']}
         	],
           recursive: req.scrapeProps.RECURSIVE,
           maxDepth: 1
@@ -48,9 +48,8 @@ var scrapeParseWrite = {
         req.output.on('close', ()=>{
             console.log(req.archive.pointer() + ' total bytes');
             console.log('archiver has been finalized and the output file descriptor has closed.');
-            folderHandler.deleteFolderRecursive(req.scrapeProps.BASE_DIR);
-            req.filePath = req.output.path;
-            req.sourceName = req.scrapeProps.SOURCE_NAME;
+            folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
+            req.scrapeProps.filePath = req.output.path;
             // res.versionNo = versionNo;
             next();
         });
@@ -68,15 +67,14 @@ var scrapeParseWrite = {
         //Add that because this object will be out of context in archive.bulk
         let that = this;
         //Get list of files in directory
-        fs.readdir(req.scrapeProps.DOWNLOAD_DIR, (err, file) => {
+        fs.readdir(req.scrapeProps.downloadDir, (err, file) => {
             list = file;
             list.forEach((name) => {
                 //Add directory name to file name for FS
-                name = req.scrapeProps.DOWNLOAD_DIR.concat(name);
+                name = req.scrapeProps.downloadDir.concat(name);
                 //only edit html files
                 if(name.match(/\.html$/)){
                     //pass file names off to be read and rewritten
-                    console.log(name, "HEWHSH")
                     this.editFile(req, res, next, name);
                 }
             });
@@ -92,10 +90,10 @@ var scrapeParseWrite = {
                 //Pipe zip to the output file
                 req.archive.pipe(req.output);
                 //specify what to zip up (in this case the directory itself) and append them to the zip
-                //Make the directory the z1ip file extracts to to be based on the SCRAPE_DIR
+                //Make the directory the z1ip file extracts to to be based on the scrapeDir
                 //Use that, since this is bound to archive module
                 req.archive.bulk([
-                    { expand: true, cwd: req.scrapeProps.BASE_DIR, src: ['**'], dest: req.scrapeProps.SCRAPE_DIR.slice(0,-1)+'.docs'}
+                    { expand: true, cwd: req.scrapeProps.baseDir, src: ['**'], dest: req.scrapeProps.scrapeDir.slice(0,-1)+'.docs'}
                 ]);
                 //Finalize archive and prevent further appends
                 req.archive.finalize();
@@ -115,7 +113,7 @@ var scrapeParseWrite = {
             //Made the rewriter universal for whatever we are scraping
             //Will need to impliment checks to make sure we have methods for those sites
 
-            var writeMethod = req.scrapeProps.SCRAPE_DIR.slice(0, -1)
+            var writeMethod = req.scrapeProps.scrapeDir.slice(0, -1)
             //Call function to remove extraneous stuff but ITS DYNAMIC!!!
             //Try and catch in case we don't have the required methods
             try{

@@ -6,12 +6,11 @@ const fs = require('fs');
 module.exports = {
 
   needUpdate : function(req, res, next){
-      let query = Update.where({versionNo: req.versionNo, sourceName: req.scrapeProps.SOURCE_NAME});
-      query.findOne( function (err, foundUpdate){
-        //   console.log(err, "HEY", foundUpdate, req.sourceName)
+      let query = Update.where({versionNo: req.scrapeProps.versionNo,
+                                sourceName: req.scrapeProps.sourceName});
+     query.findOne( function (err, foundUpdate){
         //takes in an err from findOne and the returned Doc
-        if(err)console.log(err);
-        // console.log(foundUpdate, "FOUND IT");
+        if(err) console.log(err);
         if(!foundUpdate){
         //no update found, send continue the middleware!
             console.log("\n\n\t\tNew version, updating\n\n");
@@ -29,54 +28,56 @@ module.exports = {
             }
             //We didn't find the file in the directory, so proceed as usual
             catch(e){
-                // console.log("File not found", e);
                 next();
             }
 
         }
       });
   },
+
   addToDB : function(req, res, next){
-    //assigns a new Update document to the variable update
-    let update = new Update ({sourceName : req.sourceName,
-                              versionNo : req.versionNo,
-                              filePath : req.filePath,
-                              retrieved : Date.now()});
+      //assigns a new Update document to the variable update
+      let update = new Update ({sourceName : req.scrapeProps.sourceName,
+                                versionNo : req.scrapeProps.versionNo,
+                                filePath : req.scrapeProps.filePath,
+                                retrieved : Date.now()});
 
-    //store our query in a variable
-    //fileName = the name of documentation
-    let query = Update.where({versionNo: req.versionNo});
-    // console.log(res.fileName, res.versionNo, res.filePath);
-    //Checks database to see if doc already exists
-    // runs callback found(err,foundUpdate)
+      //store our query in a variable
+      //fileName = the name of documentation
+      let query = Update.where({versionNo: req.scrapeProps.versionNo,
+                                sourceName: req.scrapeProps.sourceName});
+      // console.log(res.fileName, res.versionNo, res.filePath);
+      //Checks database to see if doc already exists
+      // runs callback found(err,foundUpdate)
 
-    // Checks database to see if doc already exists
-    // runs callback found(err,foundUpdate)
-    query.findOne( function (err, foundUpdate){
-      //takes in an err from findOne and the returned Doc
-      if(err)console.log(err);
+      // Checks database to see if doc already exists
+      // runs callback found(err,foundUpdate)
+      query.findOne( function (err, foundUpdate){
+          //takes in an err from findOne and the returned Doc
+          if(err)console.log(err);
 
-      if(!foundUpdate){
-        update.save( function(err, update){
-          if(err) {
-            console.error(err);
-          }else {
-            console.log (`${req.sourceName} - versionNo:${req.versionNo} has been added to the database.`);
-            next();
+          if(!foundUpdate){
+              update.save( function(err, update){
+                  if(err) {
+                      console.error(err);
+                  }
+                  else {
+                      console.log (`${req.scrapeProps.sourceName} - versionNo:${req.scrapeProps.versionNo} has been added to the database.`);
+                      next();
+                  }
+              });
           }
-        });
-      }
 
-      if ( foundUpdate ){ // if the Doc exists update
-        //currently only updating the Date - can handle version numbers at a later date
-        query.findOneAndUpdate( {retrieved: Date.now()}, function(err, newInfo){
-          if (err) console.log(err);
-          else{
-            console.log("NewInfo ", newInfo);
-            next();
+          if ( foundUpdate ){ // if the Doc exists update
+              //currently only updating the Date - can handle version numbers at a later date
+              query.findOneAndUpdate( {retrieved: Date.now()}, function(err, newInfo){
+                  if (err) console.log(err);
+                  else{
+                      console.log("NewInfo ", newInfo);
+                      next();
+                  }
+              });
           }
-        });
-      }
-    });
-  }
+      });
+    }
 };
