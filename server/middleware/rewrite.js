@@ -16,6 +16,7 @@ var rewrite = {
         var $ = cheerio.load(html);
         $('header').remove();
         $('footer').remove();
+        $('#menu').remove();
         // $('header').remove();
         html = $.html();
         //Return full html to be written as file instead of html and cheerio data

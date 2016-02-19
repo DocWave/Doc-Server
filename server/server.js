@@ -7,6 +7,9 @@ const mongoose = require('mongoose');
 const dbController = require('./controllers/dbController');
 //Scraping middleware
 const scrapeParseWrite = require('./middleware/scrapeParseWrite');
+
+const parseEntry = require('./middleware/parseEntryPoint')
+
 //Middleware to add proper request properties for each site to scrape
 const requestProps = require('./middleware/requestProps')
 //Add middleware to check version of various sites
@@ -15,6 +18,7 @@ const fs = require('fs');
 mongoose.connect('mongodb://Doc:tor@ds059215.mongolab.com:59215/doc-tor');
 const db = mongoose.connection;
 const app = express();
+
 
 require('dns').lookup(require('os').hostname(), function (err, add, fam) {
   console.log('addr: '+add);
@@ -47,8 +51,8 @@ app.get('/' , function(req, res){
 /// BIND SCRAPEPARSEWRITE.CREATEZIP TO ITSELF SO IT BIND TO THE CORRECT CONTEXT
 /////////////////////////////////////////////////
 app.get('/node', requestProps.node, version.node, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
-    console.log(res.filePath, "HELLO ");
-    res.sendFile(path.resolve(req.filePath));
+    // console.log("HELLO ");
+    res.sendFile(path.resolve(req.scrapeProps.filePath));
     console.log("sending full html back to client");
 });
 //////////////////////////////////////////////////
@@ -75,18 +79,7 @@ app.put('/node', function(req, res){
 
 app.get('/express', requestProps.express, version.express, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
     console.log(res.filePath, "HELLO ");
-    res.sendFile(path.resolve(req.filePath));
-    console.log("sending full html back to client");
-});
-app.get('/express2', requestProps.express, version.express, function(req,res){
-    console.log(res.filePath, "HELLO ");
-    res.sendFile(path.resolve(req.filePath));
-    console.log("sending full html back to client");
-
-});
-app.get('/express3', requestProps.node, version.node, function(req,res){
-    console.log(res.filePath, "HELLO ");
-    res.sendFile(path.resolve(req.filePath));
+    res.sendFile(path.resolve(req.scrapeProps.filePath));
     console.log("sending full html back to client");
 });
 ///////////////////////////////////////////////
