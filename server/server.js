@@ -51,7 +51,7 @@ app.get( '/', function ( req, res ) {
 */
 /*mdn.download, mdn.getJavascript,mdn.makeFile, mdn.extract,  */
 app.get( '/mdn',  mdn.createClassObj, mdn.createMethodsObj, mdn.createEventObj, mdn.createKWObj, mdn.createFuncObj, mdn.sqlFile, mdn.zip, function ( req, res ) {
-	res.sendFile(path.resolve('../../mdn_javascript.zip'));
+	res.sendFile(path.resolve('./mdn_javascript.zip'));
 } );
 /////////////////////////////////////////////////
 //// Handle req for node zip
