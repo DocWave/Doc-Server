@@ -89,10 +89,24 @@ app.delete( '/node', function ( req, res ) {
 //////////////////////////////////////////////////
 // handle changes to node update DB
 //////////////////////////////////////////////////
-app.put( '/node', function ( req, res ) {
+app.put( '/node', function ( req, res ) {});
 
-} );
+app.get('/express', requestProps.express, version.express, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
+    console.log(res.filePath, "HELLO ");
+    res.sendFile(path.resolve(req.filePath));
+    console.log("sending full html back to client");
+});
+app.get('/express2', requestProps.express, version.express, function(req,res){
+    console.log(res.filePath, "HELLO ");
+    res.sendFile(path.resolve(req.filePath));
+    console.log("sending full html back to client");
 
+});
+app.get('/express3', requestProps.node, version.node, function(req,res){
+    console.log(res.filePath, "HELLO ");
+    res.sendFile(path.resolve(req.filePath));
+    console.log("sending full html back to client");
+});
 ///////////////////////////////////////////////
 // Handle requests for data
 // (option for multiple sites)

@@ -6,8 +6,9 @@ const fs = require('fs');
 module.exports = {
 
   needUpdate : function(req, res, next){
-      let query = Update.where({versionNo: req.versionNo});
+      let query = Update.where({versionNo: req.versionNo, sourceName: req.scrapeProps.SOURCE_NAME});
       query.findOne( function (err, foundUpdate){
+        //   console.log(err, "HEY", foundUpdate, req.sourceName)
         //takes in an err from findOne and the returned Doc
         if(err)console.log(err);
         // console.log(foundUpdate, "FOUND IT");
