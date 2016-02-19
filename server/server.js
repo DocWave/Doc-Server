@@ -50,7 +50,7 @@ app.get( '/', function ( req, res ) {
         mdn.getJavascript actually downloads the .tgz
 */
 /*mdn.download, mdn.getJavascript,mdn.makeFile, mdn.extract,  */
-app.get( '/mdn',  mdn.createClassObj, mdn.createMethodsObj, mdn.createEventObj, mdn.createKWObj, mdn.createFuncObj, mdn.sqlFile, mdn.zip, function ( req, res ) {
+app.get( '/mdn',  mdn.download, mdn.getJavascript,mdn.makeFile, mdn.extract, mdn.createClassObj, mdn.createMethodsObj, mdn.createEventObj, mdn.createKWObj, mdn.createFuncObj, mdn.sqlFile, mdn.zip, function ( req, res ) {
 	res.sendFile(path.resolve('./mdn_javascript.zip'));
 } );
 /////////////////////////////////////////////////
