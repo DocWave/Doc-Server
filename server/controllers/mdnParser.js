@@ -7,6 +7,8 @@ const zlib = require( 'zlib' );
 const inflate = zlib.Unzip();
 const path = require( 'path' );
 const tar = require( 'tar' );
+const SQL = require( 'sql.js' );
+const archiver = require( 'archiver' );
 
 let mdn = {
 	download: function ( req, res, next ) {
@@ -39,7 +41,7 @@ let mdn = {
 	extract: function ( req, res, next ) {
 		console.log( 'extracting...' );
 		var extractor = tar.Extract( {
-				path: './'
+				path: '/doc'
 			} )
 			.on( 'error', function ( err ) {
 				throw err;
@@ -60,7 +62,18 @@ let mdn = {
 	createClassObj: function ( req, res, next ) {
 		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/API';
 		let classObj = {};
-		getHTML(base, classObj, req.classObj, next);
+
+		fs.readdir( './doc' + base, function ( err, files ) {
+			if ( err ) console.log( err );
+			files = files.filter( elem => {
+				return elem.includes( '.html' );
+			} );
+			for ( var k of files ) {
+				classObj[ k.replace( '.html', "" ) ] = base + k;
+			}
+			req.classObj = classObj;
+			next();
+		} );
 	},
 	createMethodsObj: function ( req, res, next ) {
 		function getDirectories( srcpath ) {
@@ -73,49 +86,134 @@ let mdn = {
 		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/API';
 		let methodObj = {};
 
-		let directories = getDirectories( '.' + base );
-		directories.forEach(elem => {
-			fs.readdir(`.${base}/${elem}`, function(err, files){
-				files.forEach(fileElem => {
-					let key  = `${elem}.${fileElem}`;
-					methodObj[key.replace(".html", "")] = `${base}/${elem}/${fileElem}`;
-				});
+		let directories = getDirectories( './doc' + base );
+		directories.forEach( elem => {
+			fs.readdir( `doc/${base}/${elem}`, function ( err, files ) {
+				files.forEach( fileElem => {
+					let key = `${elem}.${fileElem}`;
+					methodObj[ key.replace( ".html", "" ) ] = `${base}/${elem}/${fileElem}`;
+				} );
 				req.methodObj = methodObj;
-				next();
-			});
-		});
+
+			} );
+		} );
+		next();
 	},
-	createEventObj: function(req, res, next){
+	createEventObj: function ( req, res, next ) {
 		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/Events';
 		let eventsObj = {};
-		getHTML(base, eventsObj, req.eventsObj, next);
+
+		fs.readdir( './doc' + base, function ( err, files ) {
+			if ( err ) console.log( err );
+			files = files.filter( elem => {
+				return elem.includes( '.html' );
+			} );
+			for ( var k of files ) {
+				eventsObj[ k.replace( '.html', "" ) ] = base + k;
+			}
+			req.eventsObj = eventsObj;
+			next();
+		} );
 	},
-	createKWObj : function(req, res, next){
+	createKWObj: function ( req, res, next ) {
 		let base1 = '/JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators';
 		let base2 = '/JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements';
 		let KWObj = {};
-		getHTML(base1, KWObj, req.KWObj, next);
-		getHTML(base2, KWObj, req.KWObj, next);
+		fs.readdir( './doc' + base1, function ( err, files ) {
+			if ( err ) console.log( err );
+			files = files.filter( elem => {
+				return elem.includes( '.html' );
+			} );
+			for ( var k of files ) {
+				KWObj[ k.replace( '.html', "" ) ] = base1 + k;
+			}
+		} );
+		fs.readdir( './doc' + base2, function ( err, files ) {
+			if ( err ) console.log( err );
+			files = files.filter( elem => {
+				return elem.includes( '.html' );
+			} );
+			for ( var k of files ) {
+				KWObj[ k.replace( '.html', "" ) ] = base2 + k;
+			}
+			req.KWObj = KWObj;
+			next();
+		} );
 	},
-	createFuncObj : function( req, res, next){
+	createFuncObj: function ( req, res, next ) {
 		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects';
 		let funcObj = {};
-		getHTML(base, funcObj, req.funcObj, next);
+
+		fs.readdir( './doc' + base, function ( err, files ) {
+			if ( err ) console.log( err );
+			files = files.filter( elem => {
+				return elem.includes( '.html' );
+			} );
+			for ( var k of files ) {
+				funcObj[ k.replace( '.html', "" ) ] = base + k;
+			}
+			req.funcObj = funcObj;
+			next();
+		} );
+	},
+	sqlFile: function ( req, res, next ) {
+		let i = 0;
+		let objects = {
+			function: req.funcObj,
+			key_word: req.KWObj,
+			events: req.eventsObj,
+			methods: req.methodObj,
+			class: req.classObj
+		};
+
+		let db = new SQL.Database();
+		db.run( "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);" );
+
+		for ( var k in objects ) {
+			console.log( k );
+			for ( var j in objects[ k ] ) {
+				db.run( "INSERT INTO docsearch VALUES (:ID, :NAME, :TYPE, :LINK)", {
+					':ID': i++,
+					':NAME': j,
+					':TYPE': k,
+					':LINK': objects[ k ][ j ]
+				} );
+			}
+		}
+		var data = db.export();
+		var buffer = new Buffer( data );
+		fs.writeFileSync( "doc/mdn_javascript.sqlite", buffer );
+
+		next();
+	},
+	// makeFile: function ( req, res, next ) {
+	// 	fs.mkdirSync( './mdn_javascript');
+	//
+	//
+	// },
+	zip: function ( req, res, next ) {
+		var output = fs.createWriteStream( './mdn_javascript.zip');
+		var archive = archiver('zip');
+
+		output.on('close', function() {
+		  console.log(archive.pointer() + ' total bytes');
+		  console.log('archiver has been finalized and the output file descriptor has closed.');
+		});
+
+		archive.on('error', function(err) {
+		  throw err;
+		});
+
+		archive.pipe(output);
+
+		archive.bulk([
+		  { expand: true, cwd: 'doc/', src: ['**'], dest:'mdn_javascript.docs' }
+		]);
+
+		archive.finalize();
+		next();
 	}
 };
-//helper functions
-function getHTML(base, objName, req, next){
 
-	fs.readdir( '.' + base, function ( err, files ) {
-		if(err)console.log(err);
-		files = files.filter( elem => {
-			return elem.includes( '.html' );
-		} );
-		for ( var k of files ) {
-			objName[ k.replace( '.html', "" ) ] = base + k;
-		}
-		resolve(files);
-	} );
-}
-new Promise (function(resolve, reject){getHTML(base, ObjName, req, next)})
+
 module.exports = mdn;
