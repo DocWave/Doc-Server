@@ -107,20 +107,26 @@ var parser = {
         var $ = cheerio.load(data);
 
         var type = '';
-
+        //Only api.html has the diff classes etc
         if(filename === "api.html"){
+            //All methods/props/events and names of those are in H3s --- Created a nightmare since they arent nested
+            //All the methods/props/events at least are inside sections located 'underneath' the names
+            //Unfortunately cheerio freaks out if an ID has the character "." in it.
             $('h3').each((ind, ele) => {
                 var truthy = ($(ele).text() === "Methods" || $(ele).text() === "Properties" || $(ele).text() === "Events")
                 var name = $(ele).attr('id');
                 var link = ("#").concat(name)
+                //If the H3 matches one of these, set the type of the entry to that
                 if(truthy){
                     type = $(ele).text().toLowerCase();
                 }
+                //Otherwise add to the sql string
                 else{
                     sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', '${type}', '${filename.concat(link)}');`;
                 }
                 i++;
             })
+            //Module / Class names are all in H2
             $('h2').each((ind, ele) => {
                 var name = $(ele).text();
                 var link = $(ele).attr('id');
@@ -128,6 +134,7 @@ var parser = {
                 i++
             })
         }
+        // For all the chapters/guides, just grab the first H1 as the title, and put the link as the file name
         else{
             var name = $('h1').first().text()
             var type = 'chapter';

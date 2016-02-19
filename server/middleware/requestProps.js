@@ -30,8 +30,6 @@ let requestProps = {
             cssDir: 'css',
             jsDir: 'js',
             scrapeDir: 'express/',
-            //FIX THIS LATER TO ADD IN ANYTHING, AND BE PASSED IN AS AN OBJECT
-            //WHY CANT I USE THIS. HERE?
             baseDir: 'docs/express/',
             downloadDir: 'zips/express/express.docs/documents/',
             RECURSIVE: false,
