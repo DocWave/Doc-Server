@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 //Constants to be changed or added later with inputs to program
 /* Structure of directory to be eg /node.docs/docs/
 *  with the sql file in /node.docs
@@ -21,7 +21,7 @@ let requestProps = {
             downloadDir: 'docs/node/documents/',
             RECURSIVE: true,
             versionNo: "",
-        }
+        };
         next();
     },
     express2: function(req,res,next){
@@ -34,7 +34,7 @@ let requestProps = {
             downloadDir: 'zips/express/express.docs/documents/',
             RECURSIVE: false,
             versionNo: "",
-        }
+        };
         next();
     },
     express: function(req, res, next){
@@ -68,11 +68,22 @@ let requestProps = {
             downloadDir: 'docs/express/documents/',
             RECURSIVE: false,
             versionNo: "",
-        }
+        };
         next();
     },
+    mdn: function(req, res, next){
+      req.scrapeProps = {
+        // URL_TO_SCRAPE: ,
+        SOURCE_NAME:"MDN Javascript",
+        // CSS_DIR: ,
+        // JS_DIR: ,
+        SCRAPE_DIR: 'mdn/javascript/',
+        BASE_DIR: 'docs/mdn/javascript/',
+        DOWNLOAD_DIR: 'docs/javascript/documents'
+      };
+      next();
+    }
 
-
-}
+};
 
 module.exports = requestProps;
