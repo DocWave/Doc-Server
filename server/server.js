@@ -50,8 +50,9 @@ app.get( '/', function ( req, res ) {
         mdn.getJavascript actually downloads the .tgz
 */
 /*mdn.download, mdn.getJavascript,mdn.makeFile, mdn.extract,  */
-app.get( '/mdn',  mdn.download, mdn.getJavascript,mdn.makeFile, mdn.extract, mdn.createClassObj, mdn.createMethodsObj, mdn.createEventObj, mdn.createKWObj, mdn.createFuncObj, mdn.sqlFile, mdn.zip, function ( req, res ) {
-	res.sendFile(path.resolve('./mdn_javascript.zip'));
+app.get( '/mdn',  mdn.download, mdn.getJavascript, /*mdn.makeFile, mdn.extract, mdn.createClassObj, mdn.createMethodsObj, mdn.createEventObj, mdn.createKWObj, mdn.createFuncObj, mdn.sqlFile, mdn.zip,*/ function ( req, res ) {
+	// res.sendFile(path.resolve('./mdn_javascript.zip'));
+	console.log('finished');
 } );
 /////////////////////////////////////////////////
 //// Handle req for node zip
@@ -74,18 +75,16 @@ app.get( '/node', requestProps.node, version.node, dbController.needUpdate, scra
 //////////////////////////////////////////////////
 // Test crash reporting route
 //////////////////////////////////////////////////
-app.post( '/error', function ( req, res ) {
-	console.log( "this func is running" );
-	fs.writeFile( 'crashReport.txt', req.body, function () {
-		console.log( 'crash report\'s a go' );
-	} );
-} );
+// app.post( '/error', function ( req, res ) {
+// 	console.log( "this func is running" );
+// 	fs.writeFile( 'crashReport.txt', req.body, function () {
+// 		console.log( 'crash report\'s a go' );
+// 	} );
+// } );
 //////////////////////////////////////////////////
 // delete zip/or section from server update DB
 //////////////////////////////////////////////////
-app.delete( '/node', function ( req, res ) {
-
-} );
+app.delete( '/node', function ( req, res ) {} );
 //////////////////////////////////////////////////
 // handle changes to node update DB
 //////////////////////////////////////////////////

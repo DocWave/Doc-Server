@@ -4,43 +4,63 @@ const request = require( 'request' );
 const fs = require( 'fs' );
 const targz = require( 'tar.gz' );
 const zlib = require( 'zlib' );
-const inflate = zlib.Unzip();
 const path = require( 'path' );
 const tar = require( 'tar' );
 const SQL = require( 'sql.js' );
 const archiver = require( 'archiver' );
 
 let mdn = {
+	/*
+	* This function goes to kapeli.com, grabs the Javascript link,
+	* then attaches it to the req obj
+	*/
 	download: function ( req, res, next ) {
 		request( 'https://kapeli.com/mdn_offline', function ( err, html ) {
 			if ( err ) console.log( err );
 			let $ = cheerio.load( html.body );
+
+			//Only use the link that contains the text 'Javascript.tgz'
 			let downloadLink = "https://kapeli.com/" + $( ".download:contains('JavaScript.tgz')" )
 				.attr( "href" );
-			res.downloadLink = downloadLink;
+			req.downloadLink = downloadLink;
 			next();
 		} );
 	},
+	//downloads tar file from kapeli.com
 	getJavascript: function ( req, res, next ) {
-		var write = fs.createWriteStream( './JavaScript.tgz' );
-		var read = request( res.downloadLink )
+		//downloading 116 MB .tar to disk
+
+		//Check if js file exists
+		
+		let write = fs.createWriteStream( './JavaScript.tgz' );
+
+		///////////////////////////////////////////////////////
+		// using the request stream as a ReadStream
+		// NOTE: req.downloadLink initialized in mdn.download
+		//////////////////////////////////////////////////////
+		let read = request( req.downloadLink )
 			.on( 'error', function ( err ) {
 				throw err;
 			} )
 			.pipe( write );
 
-		fs.watch( './JavaScript.tgz' )
+		//just to log bytes written - not necessary
+		let watcher = fs.watch( './JavaScript.tgz' )
 			.on( 'change', function () {
 				console.log( read.bytesWritten );
 			} );
-
+		//close readStream and watcher
 		read.on( 'finish', function () {
-			read.close( next() );
+			read.close( function(){
+				watcher.close();
+				next();
+			});
 		} );
 	},
 	extract: function ( req, res, next ) {
 		console.log( 'extracting...' );
-		var extractor = tar.Extract( {
+		let inflate = zlib.Unzip();
+		let extractor = tar.Extract( {
 				path: '/doc'
 			} )
 			.on( 'error', function ( err ) {
@@ -49,7 +69,7 @@ let mdn = {
 			.on( 'end', function () {
 				console.log( 'extracted' );
 			} );
-		var extracting = fs.createReadStream( './JavaScript.tgz' )
+		let extracting = fs.createReadStream( './JavaScript.tgz' )
 			.on( 'error', function ( err ) {
 				throw err;
 			} )
@@ -68,7 +88,7 @@ let mdn = {
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
 			} );
-			for ( var k of files ) {
+			for ( let k of files ) {
 				classObj[ k.replace( '.html', "" ) ] = base + k;
 			}
 			req.classObj = classObj;
@@ -108,7 +128,7 @@ let mdn = {
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
 			} );
-			for ( var k of files ) {
+			for ( let k of files ) {
 				eventsObj[ k.replace( '.html', "" ) ] = base + k;
 			}
 			req.eventsObj = eventsObj;
@@ -124,7 +144,7 @@ let mdn = {
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
 			} );
-			for ( var k of files ) {
+			for ( let k of files ) {
 				KWObj[ k.replace( '.html', "" ) ] = base1 + k;
 			}
 		} );
@@ -133,7 +153,7 @@ let mdn = {
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
 			} );
-			for ( var k of files ) {
+			for ( let k of files ) {
 				KWObj[ k.replace( '.html', "" ) ] = base2 + k;
 			}
 			req.KWObj = KWObj;
@@ -149,7 +169,7 @@ let mdn = {
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
 			} );
-			for ( var k of files ) {
+			for ( let k of files ) {
 				funcObj[ k.replace( '.html', "" ) ] = base + k;
 			}
 			req.funcObj = funcObj;
@@ -169,9 +189,9 @@ let mdn = {
 		let db = new SQL.Database();
 		db.run( "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);" );
 
-		for ( var k in objects ) {
+		for ( let k in objects ) {
 			console.log( k );
-			for ( var j in objects[ k ] ) {
+			for ( let j in objects[ k ] ) {
 				db.run( "INSERT INTO docsearch VALUES (:ID, :NAME, :TYPE, :LINK)", {
 					':ID': i++,
 					':NAME': j,
@@ -180,8 +200,8 @@ let mdn = {
 				} );
 			}
 		}
-		var data = db.export();
-		var buffer = new Buffer( data );
+		let data = db.export();
+		let buffer = new Buffer( data );
 		fs.writeFileSync( "doc/mdn_javascript.sqlite", buffer );
 
 		next();
@@ -192,8 +212,8 @@ let mdn = {
 	//
 	// },
 	zip: function ( req, res, next ) {
-		var output = fs.createWriteStream( './mdn_javascript.zip');
-		var archive = archiver('zip');
+		let output = fs.createWriteStream( './mdn_javascript.zip');
+		let archive = archiver('zip');
 
 		output.on('close', function() {
 		  console.log(archive.pointer() + ' total bytes');

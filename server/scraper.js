@@ -110,8 +110,8 @@ var scrapeParseWrite = {
                 //Finalize archive and prevent further appends
                 req.archive.finalize();
             }).catch((val)=>{
-                console.log("Promise rejected: ", val)
-            })
+                console.log("Promise rejected: ", val);
+            });
 
         });
     },
@@ -133,5 +133,5 @@ var scrapeParseWrite = {
     },
 
 
-}
+};
 module.exports = scrapeParseWrite;
