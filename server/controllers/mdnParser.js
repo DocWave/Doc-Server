@@ -31,7 +31,7 @@ let mdn = {
 		//downloading 116 MB .tar to disk
 
 		//Check if js file exists
-		
+
 		let write = fs.createWriteStream( './JavaScript.tgz' );
 
 		///////////////////////////////////////////////////////
@@ -206,11 +206,6 @@ let mdn = {
 
 		next();
 	},
-	// makeFile: function ( req, res, next ) {
-	// 	fs.mkdirSync( './mdn_javascript');
-	//
-	//
-	// },
 	zip: function ( req, res, next ) {
 		let output = fs.createWriteStream( './mdn_javascript.zip');
 		let archive = archiver('zip');

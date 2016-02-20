@@ -1,5 +1,5 @@
 var fs = require('fs');
-var parser = require('./nodeparser_working')
+var parser = require('./parser')
 var sql = require('sql.js')
 var Promise = require('bluebird')
 
@@ -14,15 +14,24 @@ var Promise = require('bluebird')
         var storage = {"DB": db, "index": i};
         var sqlstr = "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);";
         db.run(sqlstr)
-        fs.readdir(req.scrapeProps.DOWNLOAD_DIR, (err, file) => {
+        fs.readdir(req.scrapeProps.downloadDir, (err, file) => {
+            console.log(err)
             list = file;
+            // console.log(storage.DB);
             list.forEach((name) => {
                 // Add directory name to file name for FS
-                name = req.scrapeProps.DOWNLOAD_DIR.concat(name);
-                //For node, don't parse all.html, it will break the sql
-                if(req.scrapeProps.SCRAPE_DIR.slice(0,-1) === 'node'){
+                name = req.scrapeProps.downloadDir.concat(name);
+                if(req.scrapeProps.scrapeDir.slice(0,-1) === 'node'){
+                    //For node, don't parse all.html, it will break the sql
                     if(name.match(/\.html$/) && !name.match(/all\.html/)){
-                        storage = parser(name, storage.DB, storage.index);
+                        storage = parser.node(name, storage.DB, storage.index);
+                    }
+                }
+                // console.log(req.scrapeProps.scrapeDir.slice(0,-1) === 'express');
+                // console.log(name.match(/\.html$/));
+                else if(req.scrapeProps.scrapeDir.slice(0,-1) === 'express'){
+                    if(name.match(/\.html$/)){
+                        storage = parser.express(name, storage['DB'], storage['index']);
                     }
                 }
             });
@@ -30,7 +39,7 @@ var Promise = require('bluebird')
             var data = db.export();
             //Create a buffer for writing to
             var buff = new Buffer(data);
-            fs.writeFileSync(req.scrapeProps.BASE_DIR+'/documents.sqlite', buff);
+            fs.writeFileSync(req.scrapeProps.baseDir+'/documents.sqlite', buff);
 
             //Be sure to resolve the promise when readdir is done
             resolve("Resolved")

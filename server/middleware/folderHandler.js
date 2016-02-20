@@ -1,14 +1,14 @@
 var fs = require('fs');
 
 var folderHandler = {
-    createFolder: function(path){
+    checkOrCreateFolder: function(path){
         if(this.checkFolders(path)){
             console.log("Folder exists for zip file, continue");
         }
         else{
             fs.mkdir(path, err => {
-                console.log("Folder does not exits, creating");
-                console.log(err);
+                if(err){ console.error(err) };
+                console.log("Zip folder does not exits, creating");
             })
         }
     },
@@ -16,11 +16,11 @@ var folderHandler = {
         // if the diretory exists, delete it
         if(this.checkFolders(path)){
             //We need to delete the directory
-            console.log("Folder existed, deleting")
+            console.log("Temp folder exists, deleting")
             this.deleteFolderRecursive(path);
         }
         else{
-            console.log("Folder does not exist, continuing");
+            console.log("Temp folder does not exist, continuing");
         }
     },
     //Generic function to check if folder exists

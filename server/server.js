@@ -7,7 +7,10 @@ const mongoose = require( 'mongoose' );
 const dbController = require( './controllers/dbController' );
 const mdn = require( './controllers/mdnParser' );
 //Scraping middleware
-const scrapeParseWrite = require( './middleware/scrapeParseWrite' );
+const scrapeParseWrite = require('./middleware/scrapeParseWrite');
+
+const parseEntry = require('./middleware/parseEntryPoint')
+
 //Middleware to add proper request properties for each site to scrape
 const requestProps = require( './middleware/requestProps' );
 //Add middleware to check version of various sites
@@ -62,16 +65,11 @@ app.get( '/mdn',  mdn.download, mdn.getJavascript, /*mdn.makeFile, mdn.extract, 
 /////////////////////////////////////////////////
 /// BIND SCRAPEPARSEWRITE.CREATEZIP TO ITSELF SO IT BIND TO THE CORRECT CONTEXT
 /////////////////////////////////////////////////
-app.get( '/node', requestProps.node, version.node, dbController.needUpdate, scrapeParseWrite.createZip.bind( scrapeParseWrite ), dbController.addToDB, function ( req, res ) {
-	console.log( res.filePath, "HELLO " );
-	res.sendFile( path.resolve( req.filePath ) );
-	console.log( "sending full html back to client" );
-} );
-// app.get('/node', version.node, dbController.needUpdate, scraper, dbController.addToDB, function(req,res){
-//   console.log(res.filePath, "HELLO ");
-//   res.sendFile(path.resolve(res.filePath));
-//   console.log("sending full html back to client");
-// });
+app.get('/node', requestProps.node, version.node, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
+    // console.log("HELLO ");
+    res.sendFile(path.resolve(req.scrapeProps.filePath));
+    console.log("sending full html back to client");
+});
 //////////////////////////////////////////////////
 // Test crash reporting route
 //////////////////////////////////////////////////
@@ -92,18 +90,7 @@ app.put( '/node', function ( req, res ) {});
 
 app.get('/express', requestProps.express, version.express, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
     console.log(res.filePath, "HELLO ");
-    res.sendFile(path.resolve(req.filePath));
-    console.log("sending full html back to client");
-});
-app.get('/express2', requestProps.express, version.express, function(req,res){
-    console.log(res.filePath, "HELLO ");
-    res.sendFile(path.resolve(req.filePath));
-    console.log("sending full html back to client");
-
-});
-app.get('/express3', requestProps.node, version.node, function(req,res){
-    console.log(res.filePath, "HELLO ");
-    res.sendFile(path.resolve(req.filePath));
+    res.sendFile(path.resolve(req.scrapeProps.filePath));
     console.log("sending full html back to client");
 });
 ///////////////////////////////////////////////
