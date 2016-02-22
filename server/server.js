@@ -8,9 +8,7 @@ const dbController = require( './controllers/dbController' );
 const mdn = require( './controllers/mdnParser' );
 //Scraping middleware
 const scrapeParseWrite = require('./middleware/scrapeParseWrite');
-
-const parseEntry = require('./middleware/parseEntryPoint')
-
+const parseEntry = require('./middleware/parseEntryPoint');
 //Middleware to add proper request properties for each site to scrape
 const requestProps = require( './middleware/requestProps' );
 //Add middleware to check version of various sites
@@ -52,19 +50,14 @@ app.get( '/', function ( req, res ) {
   NOTE: mdn.download only provides a link for request module,
         mdn.getJavascript actually downloads the .tgz
 */
-/*mdn.download, mdn.getJavascript,mdn.makeFile, mdn.extract,  */
-app.get( '/mdn',  mdn.download, mdn.getJavascript, /*mdn.makeFile, mdn.extract, mdn.createClassObj, mdn.createMethodsObj, mdn.createEventObj, mdn.createKWObj, mdn.createFuncObj, mdn.sqlFile, mdn.zip,*/ function ( req, res ) {
+app.get( '/mdn', mdn.download, mdn.getJavascript , /*mdn.extract, mdn.createClassObj, mdn.createMethodsObj, mdn.createEventObj, mdn.createKWObj, mdn.createFuncObj, mdn.sqlFile, mdn.zip,*/ function ( req, res ) {
 	// res.sendFile(path.resolve('./mdn_javascript.zip'));
 	console.log('finished');
 } );
-/////////////////////////////////////////////////
-//// Handle req for node zip
-/////////////////////////////////////////////////
-// app.get('/node', version.node, dbController.needUpdate, scraper, dbController.addToDB, function(req,res){
-//app.get('/node', version.node, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
-/////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
 /// BIND SCRAPEPARSEWRITE.CREATEZIP TO ITSELF SO IT BIND TO THE CORRECT CONTEXT
-/////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 app.get('/node', requestProps.node, version.node, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
     // console.log("HELLO ");
     res.sendFile(path.resolve(req.scrapeProps.filePath));

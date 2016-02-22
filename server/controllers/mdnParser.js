@@ -20,9 +20,15 @@ let mdn = {
 			let $ = cheerio.load( html.body );
 
 			//Only use the link that contains the text 'Javascript.tgz'
-			let downloadLink = "https://kapeli.com/" + $( ".download:contains('JavaScript.tgz')" )
+			let JSdownloadLink = "https://kapeli.com/" + $( ".download:contains('JavaScript.tgz')" )
 				.attr( "href" );
-			req.downloadLink = downloadLink;
+			let CSSdownloadLink = "https://kapeli.com/" + $( ".download:contains('CSS.tgz')" )
+				.attr( "href" );
+			let HTMLdownloadLink = "https://kapeli.com/" + $( ".download:contains('HTML.tgz')" )
+				.attr( "href" );
+			req.JSdownloadLink = JSdownloadLink;
+			req.CSSdownloadLink = CSSdownloadLink;
+			req.HTMLdownloadLink = HTMLdownloadLink;
 			next();
 		} );
 	},
@@ -32,36 +38,63 @@ let mdn = {
 
 		//Check if js file exists
 
-		let write = fs.createWriteStream( './JavaScript.tgz' );
-
+		let writeJS = fs.createWriteStream( './JavaScript.tgz' );
+		let writeCSS = fs.createWriteStream( './css.tgz' );
+		let writeHTML = fs.createWriteStream( './html.tgz' );
 		///////////////////////////////////////////////////////
 		// using the request stream as a ReadStream
-		// NOTE: req.downloadLink initialized in mdn.download
+		// NOTE: req.___downloadLink initialized in mdn.download
 		//////////////////////////////////////////////////////
-		let read = request( req.downloadLink )
+		let readJS = request( req.JSdownloadLink )
 			.on( 'error', function ( err ) {
 				throw err;
 			} )
-			.pipe( write );
-
+			.pipe( writeJS );
+		let readCSS = request( req.CSSdownloadLink )
+			.on( 'error', function ( err ) {
+				throw err;
+			} )
+			.pipe( writeJS );
+		let readHTML = request( req.HTMLdownloadLink )
+			.on( 'error', function ( err ) {
+				throw err;
+			} )
+			.pipe( writeJS );
 		//just to log bytes written - not necessary
-		let watcher = fs.watch( './JavaScript.tgz' )
+		let watcherJS = fs.watch( './JavaScript.tgz' )
 			.on( 'change', function () {
-				console.log( read.bytesWritten );
+				console.log( "JS: ", readJS.bytesWritten );
+			} );
+		let watcherCSS = fs.watch( './css.tgz' )
+			.on( 'change', function () {
+				console.log( "CSS: ", readJS.bytesWritten );
+			} );
+		let watcherHTML = fs.watch( './html.tgz' )
+			.on( 'change', function () {
+				console.log( "html: ", readJS.bytesWritten );
 			} );
 		//close readStream and watcher
-		read.on( 'finish', function () {
-			read.close( function(){
-				watcher.close();
+		readJS.on( 'finish', function () {
+			readJS.close( function(){
+				watcherJS.close();
+			});
+		});
+		readCSS.on( 'finish', function () {
+			readCSS.close( function(){
+				watcherCSS.close();
+			});
+		});
+		readHTML.on( 'finish', function () {
+			readHTML.close( function(){
+				watcherHTML.close();
 				next();
 			});
-		} );
+		});
 	},
 	extract: function ( req, res, next ) {
-		console.log( 'extracting...' );
 		let inflate = zlib.Unzip();
 		let extractor = tar.Extract( {
-				path: '/doc'
+				path: './doc'
 			} )
 			.on( 'error', function ( err ) {
 				throw err;
