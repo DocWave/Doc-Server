@@ -26,6 +26,9 @@ require( 'dns' )
 		function ( err, add, fam ) {
 			console.log( 'addr: ' + add );
 		} );
+// log output
+app.use(require('morgan')
+('STATUS=:status IP=:remote-addr REQ=":method :url" TIME=:response-time :res[content-length]'))
 
 db.on( 'error', console.error.bind( console, 'connection error:' ) );
 db.once( 'open', function () {
@@ -55,7 +58,7 @@ app.get( '/', function ( req, res ) {
 /*mdn.download, mdn.getJavascript,mdn.makeFile, mdn.extract,  */
 app.get( '/mdn',  mdn.download, mdn.getJavascript, /*mdn.makeFile, mdn.extract, mdn.createClassObj, mdn.createMethodsObj, mdn.createEventObj, mdn.createKWObj, mdn.createFuncObj, mdn.sqlFile, mdn.zip,*/ function ( req, res ) {
 	// res.sendFile(path.resolve('./mdn_javascript.zip'));
-	console.log('finished');
+	console.log('\n finished');
 } );
 /////////////////////////////////////////////////
 //// Handle req for node zip

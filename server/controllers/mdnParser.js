@@ -47,7 +47,9 @@ let mdn = {
 		//just to log bytes written - not necessary
 		let watcher = fs.watch( './JavaScript.tgz' )
 			.on( 'change', function () {
-				console.log( read.bytesWritten );
+				let bytes=(read.bytesWritten/1000000).toFixed(2);
+				// console.log( bytes +' MB');
+				require('single-line-log').stdout(bytes +' MB')
 			} );
 		//close readStream and watcher
 		read.on( 'finish', function () {
