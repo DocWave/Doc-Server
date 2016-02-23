@@ -25,5 +25,9 @@
     "tar": "^2.2.1",
     "tar.gz": "^1.0.3",
     "vo": "^1.0.3"
+  },
+  "devDependencies": {
+    "morgan": "^1.7.0",
+    "single-line-log": "^1.0.1"
   }
 }

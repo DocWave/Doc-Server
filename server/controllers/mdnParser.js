@@ -34,13 +34,12 @@ let mdn = {
 	},
 	//downloads tar file from kapeli.com
 	getJavascript: function ( req, res, next ) {
-		//downloading 116 MB .tar to disk
+		// NOTE: downloading ~160 MB(.tar) to disk
 
-		//Check if js file exists
+		let writeJS = fs.createWriteStream( './mdnFiles/javascript.tgz' );
+		let writeCSS = fs.createWriteStream( './mdnFiles/css.tgz' );
+		let writeHTML = fs.createWriteStream( './mdnFiles/html.tgz' );
 
-		let writeJS = fs.createWriteStream( './JavaScript.tgz' );
-		let writeCSS = fs.createWriteStream( './css.tgz' );
-		let writeHTML = fs.createWriteStream( './html.tgz' );
 		///////////////////////////////////////////////////////
 		// using the request stream as a ReadStream
 		// NOTE: req.___downloadLink initialized in mdn.download
@@ -54,40 +53,46 @@ let mdn = {
 			.on( 'error', function ( err ) {
 				throw err;
 			} )
-			.pipe( writeJS );
+			.pipe( writeCSS );
 		let readHTML = request( req.HTMLdownloadLink )
 			.on( 'error', function ( err ) {
 				throw err;
 			} )
-			.pipe( writeJS );
+			.pipe( writeHTML );
+
+
 		//just to log bytes written - not necessary
-		let watcherJS = fs.watch( './JavaScript.tgz' )
+		let watcherJS = fs.watch( './mdnFiles/javascript.tgz' )
 			.on( 'change', function () {
-				console.log( "JS: ", readJS.bytesWritten );
+				let bytes=(readJS.bytesWritten/1000000).toFixed(2);
+				require('single-line-log').stdout('JS: ',bytes +' MB');
 			} );
-		let watcherCSS = fs.watch( './css.tgz' )
+		let watcherCSS = fs.watch( './mdnFiles/css.tgz' )
 			.on( 'change', function () {
-				console.log( "CSS: ", readJS.bytesWritten );
+				let bytes=(readCSS.bytesWritten/1000000).toFixed(2);
+				require('single-line-log').stdout('CSS: ' + bytes +' MB');
 			} );
-		let watcherHTML = fs.watch( './html.tgz' )
+		let watcherHTML = fs.watch( './mdnFiles/html.tgz' )
 			.on( 'change', function () {
-				console.log( "html: ", readJS.bytesWritten );
+				let bytes=(readHTML.bytesWritten/1000000).toFixed(2);
+				require('single-line-log').stdout('HTML: ' + bytes +' MB');
 			} );
+
 		//close readStream and watcher
 		readJS.on( 'finish', function () {
 			readJS.close( function(){
 				watcherJS.close();
-			});
-		});
-		readCSS.on( 'finish', function () {
-			readCSS.close( function(){
-				watcherCSS.close();
-			});
-		});
-		readHTML.on( 'finish', function () {
-			readHTML.close( function(){
-				watcherHTML.close();
-				next();
+				readCSS.on( 'finish', function () {
+					readCSS.close( function(){
+						watcherCSS.close();
+						readHTML.on( 'finish', function () {
+							readHTML.close( function(){
+								watcherHTML.close();
+								next();
+							});
+						});
+					});
+				});
 			});
 		});
 	},
@@ -102,14 +107,31 @@ let mdn = {
 			.on( 'end', function () {
 				console.log( 'extracted' );
 			} );
-		let extracting = fs.createReadStream( './JavaScript.tgz' )
+		let extractingJS = fs.createReadStream( './mdnFiles/javascript.tgz' )
 			.on( 'error', function ( err ) {
 				throw err;
 			} )
 			.pipe( inflate )
 			.pipe( extractor );
-		extracting.on( 'finish', function () {
-			next();
+		let extractingCSS = fs.createReadStream( './mdnFiles/css.tgz' )
+			.on( 'error', function ( err ) {
+				throw err;
+			} )
+			.pipe( inflate )
+			.pipe( extractor );
+		let extractingHTML = fs.createReadStream( './mdnFiles/html.tgz' )
+			.on( 'error', function ( err ) {
+				throw err;
+			} )
+			.pipe( inflate )
+			.pipe( extractor );
+
+		extractingJS.on( 'finish', function () {
+			extractingCSS.on( 'finish', function () {
+				extractingHTML.on( 'finish', function () {
+					next();
+				} );
+			} );
 		} );
 	},
 	createClassObj: function ( req, res, next ) {
