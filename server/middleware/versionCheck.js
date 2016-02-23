@@ -23,6 +23,17 @@ var versionCheck = {
             req.scrapeProps.versionNo = versionString;
             next();
         })
+    },
+    js: function(req, res, next){
+        request.get('https://kapeli.com/mdn_offline', (err, resp, body) => {
+            var $ = cheerio.load(body);
+            //version string here is going to be the update date
+            var jsLink = $( ".download:contains('JavaScript.tgz')" )
+            var versionString = $(jsLink).parent().next('td').text();
+            req.scrapeProps.versionNo = versionString;
+            next();
+        })
+
     }
 }
 module.exports = versionCheck;

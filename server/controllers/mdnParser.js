@@ -63,7 +63,7 @@ let mdn = {
 		console.log( 'extracting...' );
 		let inflate = zlib.Unzip();
 		let extractor = tar.Extract( {
-				path: '/doc'
+				path: './docs'
 			} )
 			.on( 'error', function ( err ) {
 				throw err;
@@ -82,10 +82,10 @@ let mdn = {
 		} );
 	},
 	createClassObj: function ( req, res, next ) {
-		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/API';
+		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/API/';
 		let classObj = {};
 
-		fs.readdir( './doc' + base, function ( err, files ) {
+		fs.readdir( './docs' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -105,27 +105,26 @@ let mdn = {
 						.isDirectory();
 				} );
 		}
-		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/API';
+		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/API/';
 		let methodObj = {};
 
-		let directories = getDirectories( './doc' + base );
+		let directories = getDirectories( './docs' + base );
 		directories.forEach( elem => {
-			fs.readdir( `doc/${base}/${elem}`, function ( err, files ) {
+			fs.readdir( `docs/${base}/${elem}`, function ( err, files ) {
 				files.forEach( fileElem => {
 					let key = `${elem}.${fileElem}`;
 					methodObj[ key.replace( ".html", "" ) ] = `${base}/${elem}/${fileElem}`;
 				} );
 				req.methodObj = methodObj;
-
 			} );
 		} );
 		next();
 	},
 	createEventObj: function ( req, res, next ) {
-		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/Events';
+		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/Events/';
 		let eventsObj = {};
 
-		fs.readdir( './doc' + base, function ( err, files ) {
+		fs.readdir( './docs' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -138,10 +137,10 @@ let mdn = {
 		} );
 	},
 	createKWObj: function ( req, res, next ) {
-		let base1 = '/JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators';
-		let base2 = '/JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements';
+		let base1 = '/JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/';
+		let base2 = '/JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/';
 		let KWObj = {};
-		fs.readdir( './doc' + base1, function ( err, files ) {
+		fs.readdir( './docs' + base1, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -150,7 +149,7 @@ let mdn = {
 				KWObj[ k.replace( '.html', "" ) ] = base1 + k;
 			}
 		} );
-		fs.readdir( './doc' + base2, function ( err, files ) {
+		fs.readdir( './docs' + base2, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -163,10 +162,10 @@ let mdn = {
 		} );
 	},
 	createFuncObj: function ( req, res, next ) {
-		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects';
+		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
 		let funcObj = {};
 
-		fs.readdir( './doc' + base, function ( err, files ) {
+		fs.readdir( './docs' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -204,12 +203,13 @@ let mdn = {
 		}
 		let data = db.export();
 		let buffer = new Buffer( data );
-		fs.writeFileSync( "doc/mdn_javascript.sqlite", buffer );
+		fs.writeFileSync( "docs/mdn_javascript.sqlite", buffer );
 
 		next();
 	},
 	zip: function ( req, res, next ) {
-		let output = fs.createWriteStream( './mdn_javascript.zip');
+		console.log('zipping');
+		let output = fs.createWriteStream( 'zips/mdn/javascript/mdn_javascript.zip');
 		let archive = archiver('zip');
 
 		output.on('close', function() {
@@ -224,7 +224,7 @@ let mdn = {
 		archive.pipe(output);
 
 		archive.bulk([
-		  { expand: true, cwd: 'doc/', src: ['**'], dest:'mdn_javascript.docs' }
+		  { expand: true, cwd: 'docs/', src: ['**'], dest:'mdn_javascript.docs' }
 		]);
 
 		archive.finalize();
