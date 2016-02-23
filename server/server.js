@@ -5,7 +5,9 @@ const bodyParser = require( 'body-parser' );
 const path = require( 'path' );
 const mongoose = require( 'mongoose' );
 const dbController = require( './controllers/dbController' );
-const mdn = require( './controllers/mdnParser' );
+const mdnJS = require( './controllers/mdnJS' );
+const mdnHTML = require( './controllers/mdnHTML' );
+const mdnCSS = require( './controllers/mdnCSS' );
 //Scraping middleware
 const scrapeParseWrite = require('./middleware/scrapeParseWrite');
 const parseEntry = require('./middleware/parseEntryPoint');
@@ -53,11 +55,18 @@ app.get( '/', function ( req, res ) {
   NOTE: mdn.download only provides a link for request module,
         mdn.getJavascript actually downloads the .tgz
 */
-app.get( '/mdn', mdn.download, mdn.getJavascript , /*mdn.extract, mdn.createClassObj, mdn.createMethodsObj, mdn.createEventObj, mdn.createKWObj, mdn.createFuncObj, mdn.sqlFile, mdn.zip,*/ function ( req, res ) {
+app.get( '/js', mdnJS.download, mdnJS.getJavascript, mdnJS.extract, mdnJS.createClassObj, mdnJS.createMethodsObj, mdnJS.createEventObj, mdnJS.createKWObj, mdnJS.createFuncObj, mdnJS.sqlFile, mdnJS.zip, function ( req, res ) {
+	res.sendFile(path.resolve('./mdn_javascript.zip'));
+	console.log('\n finished');
+});
+app.get( '/html', mdnHTML.download, mdnHTML.getHTML, mdnHTML.extract, mdnHTML.sqlFile, mdnHTML.zip, function ( req, res ) {
 	// res.sendFile(path.resolve('./mdn_javascript.zip'));
 	console.log('\n finished');
 });
-
+app.get( '/css', mdnCSS.download, mdnCSS.getCSS, mdnCSS.extract, mdnCSS.sqlFile, mdnCSS.zip, function ( req, res ) {
+	// res.sendFile(path.resolve('./mdn_javascript.zip'));
+	console.log('\n finished');
+});
 ///////////////////////////////////////////////////////////////////////////////
 /// BIND SCRAPEPARSEWRITE.CREATEZIP TO ITSELF SO IT BIND TO THE CORRECT CONTEXT
 ///////////////////////////////////////////////////////////////////////////////
