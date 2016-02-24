@@ -10,7 +10,7 @@ var Promise = require('bluebird')
         //initialize sql query
         //move outside of function?
         var i = 0;
-        var jsonFile = {"result": []};
+        var jsonFile = {"source": req.scrapeProps.sourceName,"result": []};
         //create an object to store the index and the database
         // var storage = {"DB": db, "index": i};
         // var sqlstr = "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);";
@@ -28,8 +28,7 @@ var Promise = require('bluebird')
                         jsonFile = parser.node(name, jsonFile);
                     }
                 }
-                // console.log(req.scrapeProps.scrapeDir.slice(0,-1) === 'express');
-                // console.log(name.match(/\.html$/));
+                //Express stuff here
                 else if(req.scrapeProps.scrapeDir.slice(0,-1) === 'express'){
                     if(name.match(/\.html$/)){
                         jsonFile = parser.express(name, jsonFile);
