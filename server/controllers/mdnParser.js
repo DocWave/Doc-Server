@@ -10,10 +10,12 @@ const SQL = require( 'sql.js' );
 const archiver = require( 'archiver' );
 
 let mdn = {
+
 	/*
 	* This function goes to kapeli.com, grabs the Javascript link,
 	* then attaches it to the req obj
 	*/
+
 	download: function ( req, res, next ) {
 		request( 'https://kapeli.com/mdn_offline', function ( err, html ) {
 			if ( err ) console.log( err );
@@ -82,10 +84,10 @@ let mdn = {
 		} );
 	},
 	createClassObj: function ( req, res, next ) {
-		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/API/';
+		let base = 'JavaScript/developer.mozilla.org/en-US/docs/Web/API/';
 		let classObj = {};
 
-		fs.readdir( './docs' + base, function ( err, files ) {
+		fs.readdir( './docs/' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -105,10 +107,10 @@ let mdn = {
 						.isDirectory();
 				} );
 		}
-		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/API/';
+		let base = 'JavaScript/developer.mozilla.org/en-US/docs/Web/API/';
 		let methodObj = {};
 
-		let directories = getDirectories( './docs' + base );
+		let directories = getDirectories( './docs/' + base );
 		directories.forEach( elem => {
 			fs.readdir( `docs/${base}/${elem}`, function ( err, files ) {
 				files.forEach( fileElem => {
@@ -121,10 +123,10 @@ let mdn = {
 		next();
 	},
 	createEventObj: function ( req, res, next ) {
-		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/Events/';
+		let base = 'JavaScript/developer.mozilla.org/en-US/docs/Web/Events/';
 		let eventsObj = {};
 
-		fs.readdir( './docs' + base, function ( err, files ) {
+		fs.readdir( './docs/' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -137,10 +139,10 @@ let mdn = {
 		} );
 	},
 	createKWObj: function ( req, res, next ) {
-		let base1 = '/JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/';
-		let base2 = '/JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/';
+		let base1 = 'JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/';
+		let base2 = 'JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/';
 		let KWObj = {};
-		fs.readdir( './docs' + base1, function ( err, files ) {
+		fs.readdir( './docs/' + base1, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -149,7 +151,7 @@ let mdn = {
 				KWObj[ k.replace( '.html', "" ) ] = base1 + k;
 			}
 		} );
-		fs.readdir( './docs' + base2, function ( err, files ) {
+		fs.readdir( './docs/' + base2, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -162,10 +164,10 @@ let mdn = {
 		} );
 	},
 	createFuncObj: function ( req, res, next ) {
-		let base = '/JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
+		let base = 'JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
 		let funcObj = {};
 
-		fs.readdir( './docs' + base, function ( err, files ) {
+		fs.readdir( './docs/' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -213,8 +215,11 @@ let mdn = {
 		let archive = archiver('zip');
 
 		output.on('close', function() {
-		  console.log(archive.pointer() + ' total bytes');
-		  console.log('archiver has been finalized and the output file descriptor has closed.');
+		  fs.unlink('./JavaScript.tgz', (err) => {
+			  if(err) console.log(err);
+			  console.log(archive.pointer() + ' total bytes');
+			  console.log('archiver has been finalized and the output file descriptor has closed.');
+		  } )
 		});
 
 		archive.on('error', function(err) {
