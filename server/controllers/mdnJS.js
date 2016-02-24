@@ -203,7 +203,7 @@ let mdn = {
 		}
 		let data = db.export();
 		let buffer = new Buffer( data );
-		fs.writeFileSync( "doc/mdn_javascript.sqlite", buffer );
+		fs.writeFileSync( "./doc/mdn_javascript.sqlite", buffer );
 
 		next();
 	},

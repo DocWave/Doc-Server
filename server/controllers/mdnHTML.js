@@ -30,7 +30,7 @@ let mdnHTML = {
 	getHTML: function ( req, res, next ) {
 		//NOTE:downloading 24 MB .tar to disk
 		try {
-			fs.mkdir('./mdnFiles');
+			fs.mkdirSync('./mdnFiles');
 		} catch (e) {
 			console.log('./mdnFiles already exists');
 		}
@@ -83,58 +83,70 @@ let mdnHTML = {
 			next();
 		} );
 	},
-	getElements: function(req, res, next){
-		let base = '/HTML/developer.mozilla.org/en-US/docs/Web/HTML/Element';
-		let attrObj = {};
-		let elemObj = {};
+	getElements: function ( req, res, next ) {
+		let base = '/HTML/developer.mozilla.org/en-US/docs/Web/HTML/Element',
+	 			attrObj = {},
+		 		elemObj = {};
 
 		fs.readdir( './doc' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
-				return elem.includes( '.html' );
+				return elem.includes( '.html' ) && !elem.includes( '.dashtoc' );
 			} );
 			for ( let file of files ) {
-				elemObj[ file.replace( '.html', "" ) ] = base + file;
-    		let $ = cheerio.load(file);
-				let idName = $("a:regex(name, attr-*)").text();
-				let attrArr = $("a:regex(name, attr-*)");
-				attrArr.forEach((el,i)=>{
-					$(el).attr(`href, #${idName[i]}`);
-					elemObj[file.replace( '.html', "" )][idName] = `${base}${file}#${idName}`;
+				let nameOfElem =  file.replace( '.html', "" ),
+				 		attrLinks = [],
+						attrIds;
+
+				let $ = cheerio.load( fs.readFileSync( `./doc${base}/${file}` ) );
+
+				$( "a[name*='attr-']" ).each( (i , el) => {
+					if($(el).attr('name')){
+						attrIds = $( el ).attr('name').replace(/attr-/g, "");
+						console.log(attrIds);
+						$(el).attr(`id, #${attrIds}`);
+						attrObj[`${nameOfElem}.${attrIds}`] = `${base}/${file}/#${attrIds}`;
+					}
 				});
+				elemObj[ nameOfElem ] = base + file;
 			}
+
 			req.elemObj = elemObj;
+			req.attrObj = attrObj;
 			next();
-		});
+		} );
 	},
 	sqlFile: function ( req, res, next ) {
 		let i = 0;
-		let HTMLObj = {
-			element: req.elemObj,
-		};
-
 		let db = new SQL.Database();
 		db.run( "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);" );
 
-		for ( let k in HTMLObj ) {
-			console.log( k );
-			for ( let j in HTMLObj[ k ] ) {
-				db.run( "INSERT INTO docsearch VALUES (:ID, :NAME, :TYPE, :LINK)", {
-					':ID': i++,
-					':NAME': j,
-					':TYPE': k,
-					':LINK': HTMLObj[ k ][ j ]
-				} );
-			}
+		for ( let elemName in req.elemObj ) {
+			db.run( "INSERT INTO docsearch VALUES (:ID, :NAME, :TYPE, :LINK)", {
+				':ID': i++,
+				':NAME': elemName,
+				':TYPE': "element",
+				':LINK': req.elemObj[ elemName ]
+			} );
+
+		}
+		for ( let attrName in req.attrObj ) {
+			db.run( "INSERT INTO docsearch VALUES (:ID, :NAME, :TYPE, :LINK)", {
+				':ID': i++,
+				':NAME': attrName,
+				':TYPE': "attribute",
+				':LINK': req.attrObj[attrName]
+			});
 		}
 		let data = db.export();
 		let buffer = new Buffer( data );
-		fs.writeFileSync( "doc/mdn_javascript.sqlite", buffer );
+		fs.writeFileSync( "./doc/mdn_html.sqlite", buffer );
 
 		next();
 	},
+
 	zip: function ( req, res, next ) {
-		let output = fs.createWriteStream( './mdn_javascript.zip');
+		let output = fs.createWriteStream( './mdn_html.zip');
 		let archive = archiver('zip');
 
 		output.on('close', function() {
