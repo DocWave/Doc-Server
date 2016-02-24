@@ -6,14 +6,15 @@ var Promise = require('bluebird')
 
  var parseEntry = {
     allFiles: function(req, resolve, reject){
-        var db = new sql.Database();
+        // var db = new sql.Database();
         //initialize sql query
         //move outside of function?
         var i = 0;
+        var jsonFile = {"result": []};
         //create an object to store the index and the database
-        var storage = {"DB": db, "index": i};
-        var sqlstr = "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);";
-        db.run(sqlstr)
+        // var storage = {"DB": db, "index": i};
+        // var sqlstr = "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);";
+        // db.run(sqlstr)
         fs.readdir(req.scrapeProps.downloadDir, (err, file) => {
             console.log(err)
             list = file;
@@ -24,22 +25,23 @@ var Promise = require('bluebird')
                 if(req.scrapeProps.scrapeDir.slice(0,-1) === 'node'){
                     //For node, don't parse all.html, it will break the sql
                     if(name.match(/\.html$/) && !name.match(/all\.html/)){
-                        storage = parser.node(name, storage.DB, storage.index);
+                        jsonFile = parser.node(name, jsonFile);
                     }
                 }
                 // console.log(req.scrapeProps.scrapeDir.slice(0,-1) === 'express');
                 // console.log(name.match(/\.html$/));
                 else if(req.scrapeProps.scrapeDir.slice(0,-1) === 'express'){
                     if(name.match(/\.html$/)){
-                        storage = parser.express(name, storage['DB'], storage['index']);
+                        jsonFile = parser.express(name, jsonFile);
                     }
                 }
             });
             //Export the database so we can write it to file
-            var data = db.export();
+            // var data = db.export();
             //Create a buffer for writing to
-            var buff = new Buffer(data);
-            fs.writeFileSync(req.scrapeProps.baseDir+'/documents.sqlite', buff);
+            // var buff = new Buffer(data);
+            jsonFile = JSON.stringify(jsonFile);
+            fs.writeFileSync(req.scrapeProps.baseDir+'/index.json', jsonFile);
 
             //Be sure to resolve the promise when readdir is done
             resolve("Resolved")
