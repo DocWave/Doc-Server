@@ -98,6 +98,11 @@ app.get('/express', requestProps.express, version.express, dbController.needUpda
     res.sendFile(path.resolve(req.scrapeProps.filePath));
     console.log("sending full html back to client");
 });
+
+app.get('/js', requestProps.mdn, version.js, dbController.needUpdate, mdn.extract, mdn.createClassObj, mdn.createMethodsObj,
+ 		mdn.createEventObj, mdn.createKWObj, mdn.createFuncObj, mdn.sqlFile, mdn.zip, function(req, res){
+	res.send("Yo" + req.scrapeProps.versionNo)
+})
 ///////////////////////////////////////////////
 // Handle requests for data
 // (option for multiple sites)

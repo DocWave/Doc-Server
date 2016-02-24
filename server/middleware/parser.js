@@ -3,8 +3,10 @@ var sql = require('sql.js')
 var cheerio = require('cheerio');
 
 var parser = {
-    node: function(file, db, i){
-        sqlstr = "";
+    node: function(file, jsonFile){
+        // sqlstr = "";
+        var i = 0;
+        // var jsonFile = [];
         var filename = file.slice(file.lastIndexOf('/')+1)
         var data = fs.readFileSync(file, 'utf-8');
         var $ = cheerio.load(data);
@@ -23,7 +25,7 @@ var parser = {
                 if(name.match(/^Class\sMethod:\s/)){
                     name = name.replace(/^Class\sMethod:\s/, "")
                 }
-                sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'method', '${filename.concat(link)}');`;
+                jsonFile.result.push({"NAME": name, "TYPE": "method", "LINK":filename.concat(link)})
                 //Push into methods for determining if its an addon page or not
                 i++;
                 methods.push($(el).attr('href'));
@@ -33,7 +35,9 @@ var parser = {
                 //sometimes classes have a . in them too we will grab classes later
                 if(!name.match(/Class/)){
                     name = name.slice(0,-1);
-                    sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'property', '${filename.concat(link)}');`;
+                    // sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'property', '${filename.concat(link)}');`;
+                    jsonFile.result.push({"NAME": name, "TYPE": "property", "LINK":filename.concat(link)})
+
                     i++;
                 }
             }
@@ -52,7 +56,8 @@ var parser = {
                 name = classname.concat("."+name);
                 //Concatenate the classname and event name and
                 //get rid of # in h2 className
-                sqlstr += `INSERT INTO docsearch VALUES(${i}, '${name}', 'event', '${filename.concat(link)}');`;
+                // sqlstr += `INSERT INTO docsearch VALUES(${i}, '${name}', 'event', '${filename.concat(link)}');`;
+                jsonFile.result.push({"NAME": name, "TYPE": "event", "LINK":filename.concat(link)})
                 i++;
 
             }
@@ -65,12 +70,14 @@ var parser = {
             firstPass(ind, el, 'h2')
         })
         //Check if anything has been put into the sql string, if not, it's not a module.
-        if(sqlstr.length >= 65){
+        if(i >= 1){
             //Get Module name and put in database
             var name = $('#apicontent > h1').text().replace(/#/g, "");
             var link = $('#apicontent > h1 a').attr('href');
-            sqlstr += `INSERT INTO docsearch VALUES(${i}, '${name}', 'module', '${filename.concat(link)}');`;
-            i++;
+            // sqlstr += `INSERT INTO docsearch VALUES(${i}, '${name}', 'module', '${filename.concat(link)}');`;
+            jsonFile.result.push({"NAME": name, "TYPE": "module", "LINK":filename.concat(link)})
+
+            // i++;
 
             //Time to grab classes and other stragglers
             $('h2 a').each((ind, el) => {
@@ -80,8 +87,10 @@ var parser = {
                 if(name.match(/^Class\:\s/g)){
                     //replace the class and get rid of the #
                     name = name.replace(/^Class\:\s/g, "").replace(/\'/g,"").slice(0, -1);
-                    sqlstr += `INSERT INTO docsearch VALUES(${i}, '${name}', 'class', '${filename.concat(link)}');`;
-                    i++;
+                    // sqlstr += `INSERT INTO docsearch VALUES(${i}, '${name}', 'class', '${filename.concat(link)}');`;
+                    jsonFile.result.push({"NAME": name, "TYPE": "class", "LINK":filename.concat(link)})
+
+                    // i++;
 
                 }
                 //Bad semantic html, check for properties that are in h2
@@ -89,21 +98,22 @@ var parser = {
                 // events props classes and methods
                 else if(!name.match(/Class|Event|\(.*\)|\.\w+(?!\()/)){
                     name = name.replace(/\'/g, "").slice(0,-1);
-                    sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'chapter', '${filename.concat(link)}');`;
-                    i++;
+                    // sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'chapter', '${filename.concat(link)}');`;
+                    jsonFile.result.push({"NAME": name, "TYPE": "chapter", "LINK":filename.concat(link)})
+                    // i++;
 
                 }
             })
         }
-
+        if(!jsonFile.sections) jsonFile.sections = ["chapter", "class", "event", "method", "module", "property"]
         //Insert into sql database
-        db.run(sqlstr);
-        return ({"DB": db, "index": i})
+        // db.run(sqlstr);
+        return (jsonFile)
     },
-    express: function(file, db, i){
+    express: function(file, jsonFile){
         var filename = file.slice(file.lastIndexOf('/')+1)
         var data = fs.readFileSync(file, 'utf-8');
-        var sqlstr = "";
+        // var sqlstr = "";
         var $ = cheerio.load(data);
 
         var type = '';
@@ -122,27 +132,31 @@ var parser = {
                 }
                 //Otherwise add to the sql string
                 else{
-                    sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', '${type}', '${filename.concat(link)}');`;
+                    jsonFile.result.push({"NAME": name, "TYPE": type, "LINK":filename.concat(link)});
+                    // sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', '${type}', '${filename.concat(link)}');`;
                 }
-                i++;
+                // i++;
             })
             //Module / Class names are all in H2
             $('h2').each((ind, ele) => {
                 var name = $(ele).text();
                 var link = $(ele).attr('id');
-                sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'class', '${filename.concat(link)}');`;
-                i++
+                // sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'class', '${filename.concat(link)}');`;
+                jsonFile.result.push({"NAME": name, "TYPE": "class", "LINK":filename.concat(link)});
+                // i++
             })
         }
         // For all the chapters/guides, just grab the first H1 as the title, and put the link as the file name
         else{
             var name = $('h1').first().text()
             var type = 'chapter';
-            sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', '${type}', '${filename}');`
-            i++;
+            // sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', '${type}', '${filename}');`
+            jsonFile.result.push({"NAME": name, "TYPE": "chapter", "LINK":filename});
+            // i++;
         }
-        db.run(sqlstr)
-        return ({"DB": db, "index": i})
+        if(!jsonFile.sections) jsonFile.sections = ["Methods", "Properties", "Events", "Class", "Chapter"];
+        // db.run(sqlstr)
+        return (jsonFile)
     }
 };
 
