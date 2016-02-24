@@ -2,14 +2,14 @@
 const cheerio = require( 'cheerio' );
 const request = require( 'request' );
 const fs = require( 'fs' );
-const targz = require( 'tar.gz' );
 const zlib = require( 'zlib' );
 const path = require( 'path' );
 const tar = require( 'tar' );
 const SQL = require( 'sql.js' );
 const archiver = require( 'archiver' );
+const folderHandler = require('./folderHandler');
 
-let mdn = {
+let mdnJS = {
 
 	/*
 	* This function goes to kapeli.com, grabs the Javascript link,
@@ -20,11 +20,13 @@ let mdn = {
 		request( 'https://kapeli.com/mdn_offline', function ( err, html ) {
 			if ( err ) console.log( err );
 			let $ = cheerio.load( html.body );
-
+			var d = new Date();
+			console.log("requesting  ", d.getMinutes(), ":", d.getSeconds());
 			//Only use the link that contains the text 'Javascript.tgz'
 			let downloadLink = "https://kapeli.com/" + $( ".download:contains('JavaScript.tgz')" )
 				.attr( "href" );
-			req.downloadLink = downloadLink;
+			// req.downloadLink = downloadLink;
+			req.downloadLink = 'http://localhost:3000/js2';
 			next();
 		} );
 	},
@@ -34,8 +36,9 @@ let mdn = {
 
 		//Check if js file exists
 
-		let write = fs.createWriteStream( './JavaScript.tgz' );
-
+		let write = fs.createWriteStream( './temp/JavaScript.tgz' );
+		var d = new Date();
+		console.log("Downloading  ", d.getMinutes(), ":", d.getSeconds());
 		///////////////////////////////////////////////////////
 		// using the request stream as a ReadStream
 		// NOTE: req.downloadLink initialized in mdn.download
@@ -47,48 +50,54 @@ let mdn = {
 			.pipe( write );
 
 		//just to log bytes written - not necessary
-		let watcher = fs.watch( './JavaScript.tgz' )
-			.on( 'change', function () {
-				let bytes=(read.bytesWritten/1000000).toFixed(2);
-				// console.log( bytes +' MB');
-				require('single-line-log').stdout(bytes +' MB')
-			} );
+		// let watcher = fs.watch( './temp/JavaScript.tgz' )
+		// 	.on( 'change', function () {
+		// 		let bytes=(read.bytesWritten/1000000).toFixed(2);
+		// 		// console.log( bytes +' MB');
+		// 		require('single-line-log').stdout(bytes +' MB')
+		// 	} );
 		//close readStream and watcher
 		read.on( 'finish', function () {
 			read.close( function(){
-				watcher.close();
+				console.log("done  ", d.getMinutes(), ":", d.getSeconds());
+				// watcher.close();
+				// res.send("DONE")
 				next();
 			});
 		} );
 	},
 	extract: function ( req, res, next ) {
 		console.log( 'extracting...' );
+		var d = new Date();
+		console.log("extracting  ", d.getMinutes(), ":", d.getSeconds());
 		let inflate = zlib.Unzip();
 		let extractor = tar.Extract( {
-				path: './docs'
+				path: './docs/mdn'
 			} )
 			.on( 'error', function ( err ) {
 				throw err;
 			} )
 			.on( 'end', function () {
 				console.log( 'extracted' );
+				next();
 			} );
-		let extracting = fs.createReadStream( './JavaScript.tgz' )
+		let extracting = fs.createReadStream( './temp/JavaScript.tgz' )
 			.on( 'error', function ( err ) {
 				throw err;
 			} )
 			.pipe( inflate )
 			.pipe( extractor );
 		extracting.on( 'finish', function () {
-			next();
+			// next();
 		} );
 	},
 	createClassObj: function ( req, res, next ) {
 		let base = 'JavaScript/developer.mozilla.org/en-US/docs/Web/API/';
 		let classObj = {};
 
-		fs.readdir( './docs/' + base, function ( err, files ) {
+		fs.readdir( './docs/mdn/' + base, function ( err, files ) {
 			if ( err ) console.log( err );
+			// console.log(files);
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
 			} );
@@ -107,12 +116,15 @@ let mdn = {
 						.isDirectory();
 				} );
 		}
-		let base = 'JavaScript/developer.mozilla.org/en-US/docs/Web/API/';
+		let base = 'JavaScript/developer.mozilla.org/en-US/docs/Web/API';
 		let methodObj = {};
 
-		let directories = getDirectories( './docs/' + base );
+		let directories = getDirectories( './docs/mdn/' + base );
+		console.log(directories);
+
 		directories.forEach( elem => {
-			fs.readdir( `docs/${base}/${elem}`, function ( err, files ) {
+			fs.readdir( `docs/mdn/${base}/${elem}`, function ( err, files ) {
+				console.log(files, err)
 				files.forEach( fileElem => {
 					let key = `${elem}.${fileElem}`;
 					methodObj[ key.replace( ".html", "" ) ] = `${base}/${elem}/${fileElem}`;
@@ -126,7 +138,7 @@ let mdn = {
 		let base = 'JavaScript/developer.mozilla.org/en-US/docs/Web/Events/';
 		let eventsObj = {};
 
-		fs.readdir( './docs/' + base, function ( err, files ) {
+		fs.readdir( './docs/mdn/' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -142,7 +154,7 @@ let mdn = {
 		let base1 = 'JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/';
 		let base2 = 'JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/';
 		let KWObj = {};
-		fs.readdir( './docs/' + base1, function ( err, files ) {
+		fs.readdir( './docs/mdn/' + base1, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -151,7 +163,7 @@ let mdn = {
 				KWObj[ k.replace( '.html', "" ) ] = base1 + k;
 			}
 		} );
-		fs.readdir( './docs/' + base2, function ( err, files ) {
+		fs.readdir( './docs/mdn/' + base2, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -167,7 +179,7 @@ let mdn = {
 		let base = 'JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
 		let funcObj = {};
 
-		fs.readdir( './docs/' + base, function ( err, files ) {
+		fs.readdir( './docs/mdn/' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -189,36 +201,34 @@ let mdn = {
 			class: req.classObj
 		};
 
-		let db = new SQL.Database();
-		db.run( "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);" );
-
+		
+		let jsonIndex = {'source': req.scrapeProps.sourceName, 'result': []}
 		for ( let k in objects ) {
 			console.log( k );
 			for ( let j in objects[ k ] ) {
-				db.run( "INSERT INTO docsearch VALUES (:ID, :NAME, :TYPE, :LINK)", {
-					':ID': i++,
-					':NAME': j,
-					':TYPE': k,
-					':LINK': objects[ k ][ j ]
-				} );
+				jsonIndex.result.push({"NAME": j, "TYPE": k, "LINK": objects[k][j]})
 			}
 		}
-		let data = db.export();
-		let buffer = new Buffer( data );
-		fs.writeFileSync( "docs/mdn_javascript.sqlite", buffer );
+		jsonIndex = JSON.stringify(jsonIndex);
+		fs.writeFileSync( "docs/mdn/index.json", jsonIndex );
 
 		next();
 	},
 	zip: function ( req, res, next ) {
 		console.log('zipping');
 		let output = fs.createWriteStream( 'zips/mdn/javascript/mdn_javascript.zip');
+		//Add to req
+		req.scrapeProps.filePath = 'zips/mdn/javascript/mdn_javascript.zip';
 		let archive = archiver('zip');
 
 		output.on('close', function() {
-		  fs.unlink('./JavaScript.tgz', (err) => {
+		  fs.unlink('./temp/JavaScript.tgz', (err) => {
 			  if(err) console.log(err);
 			  console.log(archive.pointer() + ' total bytes');
 			  console.log('archiver has been finalized and the output file descriptor has closed.');
+			  folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
+			  next();
+
 		  } )
 		});
 
@@ -229,13 +239,12 @@ let mdn = {
 		archive.pipe(output);
 
 		archive.bulk([
-		  { expand: true, cwd: 'docs/', src: ['**'], dest:'mdn_javascript.docs' }
+		  { expand: true, cwd: 'docs/mdn', src: ['**'], dest:'mdn_javascript.docs' }
 		]);
 
 		archive.finalize();
-		next();
 	}
 };
 
 
-module.exports = mdn;
+module.exports = mdnJS;

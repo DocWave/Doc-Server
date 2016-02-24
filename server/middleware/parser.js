@@ -1,12 +1,10 @@
 var fs = require('fs');
-var sql = require('sql.js')
 var cheerio = require('cheerio');
 
 var parser = {
     node: function(file, jsonFile){
         // sqlstr = "";
         var i = 0;
-        // var jsonFile = [];
         var filename = file.slice(file.lastIndexOf('/')+1)
         var data = fs.readFileSync(file, 'utf-8');
         var $ = cheerio.load(data);
@@ -139,8 +137,9 @@ var parser = {
             })
             //Module / Class names are all in H2
             $('h2').each((ind, ele) => {
+                // console.log();
                 var name = $(ele).text();
-                var link = $(ele).attr('id');
+                var link = ("#").concat($(ele).prev('p').children().first().attr('id'));
                 // sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'class', '${filename.concat(link)}');`;
                 jsonFile.result.push({"NAME": name, "TYPE": "class", "LINK":filename.concat(link)});
                 // i++
@@ -154,7 +153,6 @@ var parser = {
             jsonFile.result.push({"NAME": name, "TYPE": "chapter", "LINK":filename});
             // i++;
         }
-        if(!jsonFile.sections) jsonFile.sections = ["Methods", "Properties", "Events", "Class", "Chapter"];
         // db.run(sqlstr)
         return (jsonFile)
     }

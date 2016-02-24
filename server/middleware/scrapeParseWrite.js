@@ -48,8 +48,9 @@ var scrapeParseWrite = {
         req.output.on('close', ()=>{
             console.log(req.archive.pointer() + ' total bytes');
             console.log('archiver has been finalized and the output file descriptor has closed.');
-            folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
+            // folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
             req.scrapeProps.filePath = req.output.path;
+            console.log(req.output.path);
             // res.versionNo = versionNo;
             next();
         });
@@ -125,11 +126,7 @@ var scrapeParseWrite = {
                 return res.end()
             }
             //Rewrite file
-            fs.writeFile(file, newData, 'utf-8', (err)=>{
-                if(err){
-                     console.log(err);
-                }
-            });
+            fs.writeFileSync(file, newData, 'utf-8')
         });
     },
 

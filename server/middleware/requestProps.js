@@ -11,7 +11,7 @@ let requestProps = {
     node: function(req, res, next){
         req.scrapeProps = {
             urlsToScrape: ['http://nodejs.org/api/'],
-            sourceName: 'Node API',
+            sourceName: 'NodeJS',
             cssDir: 'assets',
             jsDir: 'assets',
             scrapeDir: 'node/',
@@ -26,7 +26,7 @@ let requestProps = {
     },
     express2: function(req,res,next){
         req.scrapeProps = {
-            sourceName: 'Express API',
+            sourceName: 'ExpressJS',
             cssDir: 'css',
             jsDir: 'js',
             scrapeDir: 'express/',
@@ -74,12 +74,12 @@ let requestProps = {
     mdn: function(req, res, next){
       req.scrapeProps = {
         // URL_TO_SCRAPE: ,
-        SOURCE_NAME:"MDN Javascript",
+        sourceName:"MDN Javascript",
         // CSS_DIR: ,
         // JS_DIR: ,
-        SCRAPE_DIR: 'mdn/javascript/',
-        BASE_DIR: 'docs/mdn/javascript/',
-        DOWNLOAD_DIR: 'docs/javascript/documents'
+        scrapeDir: 'mdn/javascript/',
+        baseDir: 'docs/mdn/',
+        downloadDir: 'docs/javascript/documents'
       };
       next();
     }
