@@ -59,11 +59,11 @@ app.get( '/js', mdnJS.download, mdnJS.getJavascript, mdnJS.extract, mdnJS.create
 	res.sendFile(path.resolve('./mdn_javascript.zip'));
 	console.log('\n finished');
 });
-app.get( '/html', /*mdnHTML.download, mdnHTML.getHTML, mdnHTML.extract,*/ mdnHTML.getElements, mdnHTML.sqlFile, mdnHTML.zip, function ( req, res ) {
+app.get( '/html', mdnHTML.download, mdnHTML.getHTML, mdnHTML.extract, mdnHTML.getElements, mdnHTML.sqlFile, mdnHTML.zip, function ( req, res ) {
 	res.sendFile(path.resolve('./mdn_html.zip'));
 	console.log('\n finished');
 });
-app.get( '/css', mdnCSS.download, mdnCSS.getCSS, mdnCSS.extract, mdnCSS.sqlFile, mdnCSS.zip, function ( req, res ) {
+app.get( '/css', mdnCSS.download, mdnCSS.getCSS, mdnCSS.extract, /*mdnCSS.sqlFile, mdnCSS.zip,*/ function ( req, res ) {
 	// res.sendFile(path.resolve('./mdn_javascript.zip'));
 	console.log('\n finished');
 });

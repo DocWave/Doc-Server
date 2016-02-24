@@ -65,7 +65,7 @@ let mdnHTML = {
 		console.log( 'extracting...' );
 		let inflate = zlib.Unzip();
 		let extractor = tar.Extract( {
-				path: './doc'
+				path: './docs'
 			} )
 			.on( 'error', function ( err ) {
 				console.log(err);
@@ -88,7 +88,7 @@ let mdnHTML = {
 	 			attrObj = {},
 		 		elemObj = {};
 
-		fs.readdir( './doc' + base, function ( err, files ) {
+		fs.readdir( './docs' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' ) && !elem.includes( '.dashtoc' );
@@ -98,7 +98,7 @@ let mdnHTML = {
 				 		attrLinks = [],
 						attrIds;
 
-				let $ = cheerio.load( fs.readFileSync( `./doc${base}/${file}` ) );
+				let $ = cheerio.load( fs.readFileSync( `./docs${base}/${file}` ) );
 
 				$( "a[name*='attr-']" ).each( (i , el) => {
 					if($(el).attr('name')){
@@ -140,7 +140,7 @@ let mdnHTML = {
 		}
 		let data = db.export();
 		let buffer = new Buffer( data );
-		fs.writeFileSync( "./doc/mdn_html.sqlite", buffer );
+		fs.writeFileSync( "./docs/mdn_html.sqlite", buffer );
 
 		next();
 	},
@@ -161,7 +161,7 @@ let mdnHTML = {
 		archive.pipe(output);
 
 		archive.bulk([
-		  { expand: true, cwd: 'doc/', src: ['**'], dest:'mdn_html.docs' }
+		  { expand: true, cwd: 'docs/', src: ['**'], dest:'mdn_html.docs' }
 		]);
 
 		archive.finalize();

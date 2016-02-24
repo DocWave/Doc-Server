@@ -46,7 +46,7 @@ let mdnCSS = {
 		let watcher = fs.watch( './mdnFiles/css.tgz' )
 			.on( 'change', function () {
 				let bytes=(read.bytesWritten/1000000).toFixed(2);
-				require('single-line-log').stdout('JS: ',bytes +' MB');
+				require('single-line-log').stdout('CSS: ',bytes +' MB');
 			});
 		//close readStream and watcher
 		read.on( 'finish', function () {
@@ -60,7 +60,7 @@ let mdnCSS = {
 		console.log( 'extracting...' );
 		let inflate = zlib.Unzip();
 		let extractor = tar.Extract( {
-				path: './doc'
+				path: './docs'
 			} )
 			.on( 'error', function ( err ) {
 				throw err;
