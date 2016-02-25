@@ -71,14 +71,14 @@ let mdnJS = {
 		console.log("extracting  ", d.getMinutes(), ":", d.getSeconds());
 		let inflate = zlib.Unzip();
 		let extractor = tar.Extract( {
-				path: './docs/mdn/javascript'
+				path: './docs/mdn/javascript/documents'
 			} )
 			.on( 'error', function ( err ) {
 				throw err;
 			} )
 			.on( 'end', function () {
 				console.log( 'extracted' );
-				// next();
+				next();
 			} );
 		let extracting = fs.createReadStream( './temp/JavaScript.tgz' )
 			.on( 'error', function ( err ) {
@@ -87,14 +87,15 @@ let mdnJS = {
 			.pipe( inflate )
 			.pipe( extractor );
 		extracting.on( 'finish', function () {
-			next();
+			// next();
 		} );
 	},
 	createClassObj: function ( req, res, next ) {
 		let base = 'JavaScript/developer.mozilla.org/en-US/docs/Web/API/';
 		let classObj = {};
-
-		fs.readdir( './docs/mdn/javascript/' + base, function ( err, files ) {
+		var d = new Date();
+		console.log(d.getMinutes(), d.getSeconds());
+		fs.readdir( './docs/mdn/javascript/documents/' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			// console.log(files);
 			files = files.filter( elem => {
@@ -118,10 +119,10 @@ let mdnJS = {
 		let base = 'JavaScript/developer.mozilla.org/en-US/docs/Web/API';
 		let methodObj = {};
 
-		let directories = getDirectories( './docs/mdn/javascript/' + base );
+		let directories = getDirectories( './docs/mdn/javascript/documents/' + base );
 
 		directories.forEach( elem => {
-			fs.readdir( `docs/mdn/javascript/${base}/${elem}`, function ( err, files ) {
+			fs.readdir( `docs/mdn/javascript/documents/${base}/${elem}`, function ( err, files ) {
 				// console.log(files, err)
 				files.forEach( fileElem => {
 					let key = `${elem}.${fileElem}`;
@@ -136,7 +137,7 @@ let mdnJS = {
 		let base = 'JavaScript/developer.mozilla.org/en-US/docs/Web/Events/';
 		let eventsObj = {};
 
-		fs.readdir( './docs/mdn/javascript/' + base, function ( err, files ) {
+		fs.readdir( './docs/mdn/javascript/documents/' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -152,7 +153,7 @@ let mdnJS = {
 		let base1 = 'JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/';
 		let base2 = 'JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/';
 		let KWObj = {};
-		fs.readdir( './docs/mdn/javascript/' + base1, function ( err, files ) {
+		fs.readdir( './docs/mdn/javascript/documents/' + base1, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -161,7 +162,7 @@ let mdnJS = {
 				KWObj[ k.replace( '.html', "" ) ] = base1 + k;
 			}
 		} );
-		fs.readdir( './docs/mdn/javascript/' + base2, function ( err, files ) {
+		fs.readdir( './docs/mdn/javascript/documents/' + base2, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -177,7 +178,7 @@ let mdnJS = {
 		let base = 'JavaScript/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
 		let funcObj = {};
 
-		fs.readdir( './docs/mdn/javascript/' + base, function ( err, files ) {
+		fs.readdir( './docs/mdn/javascript/documents/' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' );
@@ -190,6 +191,7 @@ let mdnJS = {
 		} );
 	},
 	sqlFile: function ( req, res, next ) {
+		var d = new Date();
 		let i = 0;
 		let objects = {
 			function: req.funcObj,
@@ -198,7 +200,7 @@ let mdnJS = {
 			methods: req.methodObj,
 			class: req.classObj
 		};
-
+		console.log(d.getMinutes(), d.getSeconds());
 
 		let jsonIndex = {'source': req.scrapeProps.sourceName, 'result': []};
 		for ( let k in objects ) {
@@ -209,6 +211,8 @@ let mdnJS = {
 		}
 		jsonIndex = JSON.stringify(jsonIndex);
 		fs.writeFileSync( "docs/mdn/javascript/index.json", jsonIndex );
+		d = new Date();
+		console.log(d.getMinutes(), d.getSeconds());
 
 		next();
 	},
@@ -218,13 +222,17 @@ let mdnJS = {
 		//Add to req
 		req.scrapeProps.filePath = './zips/mdn/mdn_javascript.zip';
 		let archive = archiver('zip');
+		var d = new Date();
+		console.log(d.getMinutes(), d.getSeconds());
 
 		output.on('close', function() {
 		  fs.unlink('./temp/JavaScript.tgz', (err) => {
 			  if(err) console.log(err);
+			  d = new Date;
+	  		  console.log(d.getMinutes(), d.getSeconds());
 			  console.log(archive.pointer() + ' total bytes');
 			  console.log('archiver has been finalized and the output file descriptor has closed.');
-			  folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
+			//   folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
 			  next();
 
 		  } )
@@ -237,7 +245,7 @@ let mdnJS = {
 		archive.pipe(output);
 
 		archive.bulk([
-		  { expand: true, cwd: 'docs/mdn', src: ['**'], dest:'mdn_javascript.docs' }
+		  { expand: true, cwd: 'docs/mdn/javascript', src: ['**'], dest:'mdn_javascript.docs' }
 		]);
 
 		archive.finalize();

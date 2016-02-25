@@ -27,8 +27,8 @@ require( 'dns' )
 			console.log( 'addr: ' + add );
 		} );
 // log output
-app.use(require('morgan')
-('STATUS=:status IP=:remote-addr REQ=":method :url" TIME=:response-time :res[content-length]'));
+// app.use(require('morgan')
+// ('STATUS=:status IP=:remote-addr REQ=":method :url" TIME=:response-time :res[content-length]'));
 
 db.on( 'error', console.error.bind( console, 'connection error:' ) );
 db.once( 'open', function () {
@@ -61,13 +61,13 @@ app.get( '/', function ( req, res ) {
 // });
 app.get( '/mdn_html', requestProps.html, version.html, dbController.needUpdate,
 				mdnHTML.download, mdnHTML.getHTML, mdnHTML.extract, mdnHTML.getElements,
-				mdnHTML.sqlFile, mdnHTML.zip,
+				mdnHTML.sqlFile, mdnHTML.zip, dbController.addToDB,
 				function ( req, res ) {
 					res.sendFile(path.resolve(req.scrapeProps.filePath));
 					console.log('\n finished');
 });
 app.get( '/mdn_css', /*mdnCSS.download, mdnCSS.getCSS, mdnCSS.extract,*/ mdnCSS.getObjs, mdnCSS.getMoz, mdnCSS.sqlFile, mdnCSS.zip, function ( req, res ) {
-	res.sendFile(path.resolve('./mdn_css.zip'));
+	res.sendFile(path.resolve(req.scrapeProps.filePath));
 	console.log('\n finished');
 });
 app.get('/mdn_javascript', requestProps.js, version.js, dbController.needUpdate, mdnJS.download,
@@ -105,10 +105,12 @@ app.delete( '/node', function ( req, res ) {} );
 //////////////////////////////////////////////////
 app.put( '/node', function ( req, res ) {});
 
-app.get('/express', requestProps.express, version.express, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
-    console.log(res.filePath, "HELLO ");
-    res.sendFile(path.resolve(req.scrapeProps.filePath));
-    console.log("sending full html back to client");
+app.get('/express', requestProps.express, version.express, dbController.needUpdate,
+		scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB,
+		function(req,res){
+		    console.log(res.filePath, "HELLO ");
+		    res.sendFile(path.resolve(req.scrapeProps.filePath));
+		    console.log("sending full html back to client");
 });
 
 

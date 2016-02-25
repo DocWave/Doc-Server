@@ -86,7 +86,7 @@ let requestProps = {
     html: function(req, res, next){
         req.scrapeProps = {
             // URL_TO_SCRAPE: ,
-            sourceName:"MDN Javascript",
+            sourceName:"MDN HTML",
             // CSS_DIR: ,
             // JS_DIR: ,
             scrapeDir: 'mdn/html/',
@@ -98,7 +98,7 @@ let requestProps = {
     css: function(req, res, next){
         req.scrapeProps = {
             // URL_TO_SCRAPE: ,
-            sourceName:"MDN Javascript",
+            sourceName:"MDN CSS",
             // CSS_DIR: ,
             // JS_DIR: ,
             scrapeDir: 'mdn/css/',

@@ -14,11 +14,12 @@ module.exports = {
         if(!foundUpdate){
         //no update found, send continue the middleware!
             console.log("\n\n\t\tNew version, updating\n\n");
-          next();
+            next();
         }
 
         if ( foundUpdate ){ // if the Doc exists update
             //Also check if we have the file right now, just in case it got deleted
+            console.log("found");
             try{
                 let fileStats = fs.statSync(path.resolve(foundUpdate.filePath));
                 //If we find that we have the same version, send the version we already have
@@ -28,6 +29,7 @@ module.exports = {
             }
             //We didn't find the file in the directory, so proceed as usual
             catch(e){
+                console.log("File not found....");
                 next();
             }
 

@@ -65,13 +65,14 @@ let mdnHTML = {
 		console.log( 'extracting...' );
 		let inflate = zlib.Unzip();
 		let extractor = tar.Extract( {
-				path: './docs/mdn/html'
+				path: './docs/mdn/html/documents/'
 			} )
 			.on( 'error', function ( err ) {
 				console.log(err);
 			} )
 			.on( 'end', function () {
 				console.log( 'extracted' );
+				next();
 			} );
 		let extracting = fs.createReadStream( './temp/html.tgz' )
 			.on( 'error', function ( err ) {
@@ -80,7 +81,7 @@ let mdnHTML = {
 			.pipe( inflate )
 			.pipe( extractor );
 		extracting.on( 'finish', function () {
-			next();
+			// next();
 		} );
 	},
 	getElements: function ( req, res, next ) {
@@ -88,7 +89,7 @@ let mdnHTML = {
 	 			attrObj = {},
 		 		elemObj = {};
 
-		fs.readdir( './docs/mdn/html/' + base, function ( err, files ) {
+		fs.readdir( './docs/mdn/html/documents/' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' ) && !elem.includes( '.dashtoc' );
@@ -144,13 +145,16 @@ let mdnHTML = {
 	zip: function ( req, res, next ) {
 		let output = fs.createWriteStream( './zips/mdn/mdn_html.zip');
 		let archive = archiver('zip');
+		req.scrapeProps.filePath = './zips/mdn/mdn_html.zip';
 
 		output.on('close', function() {
-		  console.log(archive.pointer() + ' total bytes');
-		  req.scrapeProps.filePath = output;
-		  folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir)
-		  console.log('archiver has been finalized and the output file descriptor has closed.');
-			next();
+			fs.unlink('./temp/HTML.tgz', (err) => {
+				if(err) console.log(err);
+			  	console.log(archive.pointer() + ' total bytes');
+			  	folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
+			  	console.log('archiver has been finalized and the output file descriptor has closed.');
+				next();
+			});
 		});
 
 		archive.on('error', function(err) {
@@ -160,7 +164,7 @@ let mdnHTML = {
 		archive.pipe(output);
 
 		archive.bulk([
-		  { expand: true, cwd: 'docs/', src: ['**'], dest:'mdn_html.docs' }
+		  { expand: true, cwd: 'docs/mdn/html', src: ['**'], dest:'mdn_html.docs' }
 		]);
 
 		archive.finalize();
