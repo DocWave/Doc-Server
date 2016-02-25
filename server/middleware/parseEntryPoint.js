@@ -1,6 +1,6 @@
 var fs = require('fs');
 var parser = require('./parser')
-var sql = require('sql.js')
+// var sql = require('sql.js')
 var Promise = require('bluebird')
 
 
