@@ -3,6 +3,7 @@ node_modules/*
 
 # debug logs
 npm-debug.log
+JavaScript.tgz
 
 #docs
 docs
