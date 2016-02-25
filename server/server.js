@@ -5,9 +5,9 @@ const bodyParser = require( 'body-parser' );
 const path = require( 'path' );
 const mongoose = require( 'mongoose' );
 const dbController = require( './controllers/dbController' );
-const mdnJS = require( './controllers/mdnJS' );
-const mdnHTML = require( './controllers/mdnHTML' );
-const mdnCSS = require( './controllers/mdnCSS' );
+const mdnJS = require( './middleware/mdnJS' );
+const mdnHTML = require( './middleware/mdnHTML' );
+const mdnCSS = require( './middleware/mdnCSS' );
 //Scraping middleware
 const scrapeParseWrite = require('./middleware/scrapeParseWrite');
 const parseEntry = require('./middleware/parseEntryPoint');
@@ -27,8 +27,8 @@ require( 'dns' )
 			console.log( 'addr: ' + add );
 		} );
 // log output
-app.use(require('morgan')
-('STATUS=:status IP=:remote-addr REQ=":method :url" TIME=:response-time :res[content-length]'));
+// app.use(require('morgan')
+// ('STATUS=:status IP=:remote-addr REQ=":method :url" TIME=:response-time :res[content-length]'));
 
 db.on( 'error', console.error.bind( console, 'connection error:' ) );
 db.once( 'open', function () {
@@ -59,13 +59,25 @@ app.get( '/', function ( req, res ) {
 // 	res.sendFile(path.resolve('./mdn_javascript.zip'));
 // 	console.log('\n finished');
 // });
-app.get( '/html', mdnHTML.download, mdnHTML.getHTML, mdnHTML.extract, mdnHTML.getElements, mdnHTML.sqlFile, mdnHTML.zip, function ( req, res ) {
-	res.sendFile(path.resolve('./mdn_html.zip'));
+app.get( '/mdn_html', requestProps.html, version.html, dbController.needUpdate,
+				mdnHTML.download, mdnHTML.getHTML, mdnHTML.extract, mdnHTML.getElements,
+				mdnHTML.sqlFile, mdnHTML.zip, dbController.addToDB,
+				function ( req, res ) {
+					res.sendFile(path.resolve(req.scrapeProps.filePath));
+					console.log('\n finished');
+});
+app.get( '/mdn_css', /*mdnCSS.download, mdnCSS.getCSS, mdnCSS.extract,*/ mdnCSS.getObjs, mdnCSS.getMoz, mdnCSS.sqlFile, mdnCSS.zip, function ( req, res ) {
+	res.sendFile(path.resolve(req.scrapeProps.filePath));
 	console.log('\n finished');
 });
-app.get( '/css', /*mdnCSS.download, mdnCSS.getCSS, mdnCSS.extract,*/ mdnCSS.getObjs, mdnCSS.getMoz, mdnCSS.sqlFile, mdnCSS.zip, function ( req, res ) {
-	res.sendFile(path.resolve('./mdn_css.zip'));
-	console.log('\n finished');
+app.get('/mdn_javascript', requestProps.js, version.js, dbController.needUpdate, mdnJS.download,
+ 				mdnJS.getJavascript, mdnJS.extract, mdnJS.createClassObj,
+				mdnJS.createMethodsObj, mdnJS.createEventObj, mdnJS.createKWObj,
+				mdnJS.createFuncObj, mdnJS.sqlFile, mdnJS.zip, dbController.addToDB,
+				function(req, res){
+					console.log(req.scrapeProps.filePath, "HELLO ");
+					res.sendFile(path.resolve(req.scrapeProps.filePath));
+					console.log("sending full html back to client");
 });
 ///////////////////////////////////////////////////////////////////////////////
 /// BIND SCRAPEPARSEWRITE.CREATEZIP TO ITSELF SO IT BIND TO THE CORRECT CONTEXT
@@ -93,16 +105,17 @@ app.delete( '/node', function ( req, res ) {} );
 //////////////////////////////////////////////////
 app.put( '/node', function ( req, res ) {});
 
-app.get('/express', requestProps.express, version.express, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
-    console.log(res.filePath, "HELLO ");
-    res.sendFile(path.resolve(req.scrapeProps.filePath));
-    console.log("sending full html back to client");
+app.get('/express', requestProps.express, version.express, dbController.needUpdate,
+		scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB,
+		function(req,res){
+		    console.log(res.filePath, "HELLO ");
+		    res.sendFile(path.resolve(req.scrapeProps.filePath));
+		    console.log("sending full html back to client");
 });
 
-app.get('/js', requestProps.mdn, version.js, dbController.needUpdate, mdnJS.extract, mdnJS.createClassObj, mdnJS.createMethodsObj,
- 		mdnJS.createEventObj, mdnJS.createKWObj, mdnJS.createFuncObj, mdnJS.sqlFile, mdnJS.zip, function(req, res){
-	res.send("Yo" + req.scrapeProps.versionNo);
-});
+
+app.get('/js2', function(req, res, next){ res.sendFile(path.resolve('JavaScript.tgz'))})
+
 ///////////////////////////////////////////////
 // Handle requests for data
 // (option for multiple sites)

@@ -71,18 +71,42 @@ let requestProps = {
         };
         next();
     },
-    mdn: function(req, res, next){
-      req.scrapeProps = {
-        // URL_TO_SCRAPE: ,
-        sourceName:"MDN Javascript",
-        // CSS_DIR: ,
-        // JS_DIR: ,
-        scrapeDir: 'mdn/javascript/',
-        baseDir: 'docs/mdn/',
-        downloadDir: 'docs/javascript/documents'
-      };
-      next();
-    }
+    js: function(req, res, next){
+        req.scrapeProps = {
+            // URL_TO_SCRAPE: ,
+            sourceName:"MDN Javascript",
+            // CSS_DIR: ,
+            // JS_DIR: ,
+            scrapeDir: 'mdn/javascript/',
+            baseDir: 'docs/mdn/javascript/',
+            downloadDir: 'docs/mdn/javascript/JavaScript/documents'
+          };
+        next();
+    },
+    html: function(req, res, next){
+        req.scrapeProps = {
+            // URL_TO_SCRAPE: ,
+            sourceName:"MDN HTML",
+            // CSS_DIR: ,
+            // JS_DIR: ,
+            scrapeDir: 'mdn/html/',
+            baseDir: 'docs/mdn/html/',
+            downloadDir: 'docs/mdn/html/HTML/documents'
+          };
+        next();
+    },
+    css: function(req, res, next){
+        req.scrapeProps = {
+            // URL_TO_SCRAPE: ,
+            sourceName:"MDN CSS",
+            // CSS_DIR: ,
+            // JS_DIR: ,
+            scrapeDir: 'mdn/css/',
+            baseDir: 'docs/mdn/css/',
+            downloadDir: 'docs/mdn/css/CSS/documents'
+          };
+        next();
+    },
 
 };
 
