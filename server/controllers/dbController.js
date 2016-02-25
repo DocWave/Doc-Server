@@ -11,15 +11,16 @@ module.exports = {
      query.findOne( function (err, foundUpdate){
         //takes in an err from findOne and the returned Doc
         if(err) console.log(err);
+        console.log("finding");
         if(!foundUpdate){
         //no update found, send continue the middleware!
             console.log("\n\n\t\tNew version, updating\n\n");
             next();
         }
 
-        if ( foundUpdate ){ // if the Doc exists update
+        else if ( foundUpdate ){ // if the Doc exists update
             //Also check if we have the file right now, just in case it got deleted
-            console.log("found");
+            console.log("found ");
             try{
                 let fileStats = fs.statSync(path.resolve(foundUpdate.filePath));
                 //If we find that we have the same version, send the version we already have

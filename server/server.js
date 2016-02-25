@@ -66,9 +66,12 @@ app.get( '/mdn_html', requestProps.html, version.html, dbController.needUpdate,
 					res.sendFile(path.resolve(req.scrapeProps.filePath));
 					console.log('\n finished');
 });
-app.get( '/mdn_css', /*mdnCSS.download, mdnCSS.getCSS, mdnCSS.extract,*/ mdnCSS.getObjs, mdnCSS.getMoz, mdnCSS.sqlFile, mdnCSS.zip, function ( req, res ) {
-	res.sendFile(path.resolve(req.scrapeProps.filePath));
-	console.log('\n finished');
+app.get( '/mdn_css', requestProps.css, version.css, dbController.needUpdate,
+		mdnCSS.download, mdnCSS.getCSS, mdnCSS.extract, mdnCSS.getObjs, mdnCSS.getMoz,
+		mdnCSS.sqlFile, mdnCSS.zip, dbController.addToDB, 
+		function ( req, res ) {
+			res.sendFile(path.resolve(req.scrapeProps.filePath));
+			console.log('\n finished');
 });
 app.get('/mdn_javascript', requestProps.js, version.js, dbController.needUpdate, mdnJS.download,
  				mdnJS.getJavascript, mdnJS.extract, mdnJS.createClassObj,

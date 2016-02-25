@@ -10,7 +10,7 @@ var Promise = require('bluebird')
         //initialize sql query
         //move outside of function?
         var i = 0;
-        var jsonFile = {"source": req.scrapeProps.sourceName,"result": []};
+        var jsonFile = {"sourceName": req.scrapeProps.sourceName,"result": []};
         //create an object to store the index and the database
         // var storage = {"DB": db, "index": i};
         // var sqlstr = "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);";

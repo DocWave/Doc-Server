@@ -7,6 +7,8 @@ const zlib = require( 'zlib' );
 const path = require( 'path' );
 const tar = require( 'tar' );
 const archiver = require( 'archiver' );
+const folderHandler = require('./folderHandler');
+
 
 let mdnCSS = {
 	/*
@@ -29,7 +31,7 @@ let mdnCSS = {
 	getCSS: function ( req, res, next ) {
 		//NOTE:downloading 22 MB .tar to disk
 
-		let write = fs.createWriteStream( './mdnFiles/css.tgz' );
+		let write = fs.createWriteStream( './temp/CSS.tgz' );
 
 		///////////////////////////////////////////////////////
 		// using the request stream as a ReadStream
@@ -42,7 +44,7 @@ let mdnCSS = {
 			.pipe( write );
 
 		//just to log bytes written - not necessary
-		let watcher = fs.watch( './mdnFiles/css.tgz' )
+		let watcher = fs.watch( './temp/CSS.tgz' )
 			.on( 'change', function () {
 				let bytes=(read.bytesWritten/1000000).toFixed(2);
 				require('single-line-log').stdout('CSS: ',bytes +' MB');
@@ -59,27 +61,28 @@ let mdnCSS = {
 		console.log( 'extracting...' );
 		let inflate = zlib.Unzip();
 		let extractor = tar.Extract( {
-				path: './docs'
+				path: './docs/mdn/css/documents'
 			} )
 			.on( 'error', function ( err ) {
 				throw err;
 			} )
 			.on( 'end', function () {
 				console.log( 'extracted' );
+				next();
 			} );
-		let extracting = fs.createReadStream( './mdnFiles/css.tgz' )
+		let extracting = fs.createReadStream( './temp/CSS.tgz' )
 			.on( 'error', function ( err ) {
 				throw err;
 			} )
 			.pipe( inflate )
 			.pipe( extractor );
 		extracting.on( 'finish', function () {
-			next();
+			// next();
 		} );
 	},
 	getObjs: function(req, res, next){
 		let base = '/CSS/developer.mozilla.org/en-US/docs/Web/CSS/';
-		let $ = cheerio.load(fs.readFileSync('./docs/CSS/developer.mozilla.org/en-US/docs/Web/CSS/Reference.html'));
+		let $ = cheerio.load(fs.readFileSync('./docs/mdn/css/documents/CSS/developer.mozilla.org/en-US/docs/Web/CSS/Reference.html'));
 		let classObj = {};
 		let elemObj = {};
 		let funcObj = {};
@@ -121,7 +124,7 @@ let mdnCSS = {
 	},
 	getMoz : function(req, res, next){
 		let base = '/CSS/developer.mozilla.org/en-US/docs/Web/CSS/';
-		let $ = cheerio.load(fs.readFileSync('./docs/CSS/developer.mozilla.org/en-US/docs/Web/CSS/Mozilla_Extensions.html'));
+		let $ = cheerio.load(fs.readFileSync('./docs/mdn/css/documents/CSS/developer.mozilla.org/en-US/docs/Web/CSS/Mozilla_Extensions.html'));
 
 		$('div .index a').each((i, el) => {
 			let text = $(el).text();
@@ -139,6 +142,7 @@ let mdnCSS = {
 	},
 	sqlFile: function ( req, res, next ) {
 		let i = 0;
+		let jsonIndex = {"sourceName": req.scrapeProps.sourceName, "result": []};
 		let objects = {
 			Classes:req.classObj ,
 			Elements:req.elemObj,
@@ -151,20 +155,24 @@ let mdnCSS = {
 		for ( let k in objects ) {
 			console.log( k );
 			for ( let j in objects[ k ] ) {
-
+				jsonIndex.result.push({"NAME": j, "TYPE": k, "LINK": objects[k][j]});
 			}
 		}
-		fs.writeFileSync( "docs/mdn/css/index.json", buffer );
+		jsonIndex = JSON.stringify(jsonIndex);
+		fs.writeFileSync( "docs/mdn/css/index.json", jsonIndex );
 		next();
 	},
 	zip: function ( req, res, next ) {
-		let output = fs.createWriteStream( 'zips/mdn_css.zip');
+		let output = fs.createWriteStream( 'zips/mdn/mdn_css.zip');
 		let archive = archiver('zip');
-
+		req.scrapeProps.filePath = './zips/mdn/mdn_css.zip';
 		output.on('close', function() {
-		  console.log(archive.pointer() + ' total bytes');
-		  console.log('archiver has been finalized and the output file descriptor has closed.');
-			next();
+			fs.unlink('./temp/HTML.tgz', (err) => {
+		  		console.log(archive.pointer() + ' total bytes');
+				folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
+		  		console.log('archiver has been finalized and the output file descriptor has closed.');
+				next();
+			});
 		});
 
 		archive.on('error', function(err) {
@@ -174,7 +182,7 @@ let mdnCSS = {
 		archive.pipe(output);
 
 		archive.bulk([
-		  { expand: true, cwd: 'docs/', src: ['**'], dest:'mdn_css.docs' }
+		  { expand: true, cwd: 'docs/mdn/css/', src: ['**'], dest:'mdn_css.docs' }
 		]);
 
 		archive.finalize();
