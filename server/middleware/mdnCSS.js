@@ -6,7 +6,6 @@ const targz = require( 'tar.gz' );
 const zlib = require( 'zlib' );
 const path = require( 'path' );
 const tar = require( 'tar' );
-const SQL = require( 'sql.js' );
 const archiver = require( 'archiver' );
 
 let mdnCSS = {
@@ -149,27 +148,17 @@ let mdnCSS = {
 		  Guides:req.guideObj
 		};
 
-		let db = new SQL.Database();
-		db.run( "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);" );
-
 		for ( let k in objects ) {
 			console.log( k );
 			for ( let j in objects[ k ] ) {
-				db.run( "INSERT INTO docsearch VALUES (:ID, :NAME, :TYPE, :LINK)", {
-					':ID': i++,
-					':NAME': j,
-					':TYPE': k,
-					':LINK': objects[ k ][ j ]
-				} );
+
 			}
 		}
-		let data = db.export();
-		let buffer = new Buffer( data );
-		fs.writeFileSync( "docs/mdn_css.sqlite", buffer );
+		fs.writeFileSync( "docs/mdn/css/index.json", buffer );
 		next();
 	},
 	zip: function ( req, res, next ) {
-		let output = fs.createWriteStream( './mdn_css.zip');
+		let output = fs.createWriteStream( 'zips/mdn_css.zip');
 		let archive = archiver('zip');
 
 		output.on('close', function() {

@@ -6,8 +6,8 @@ const targz = require( 'tar.gz' );
 const zlib = require( 'zlib' );
 const path = require( 'path' );
 const tar = require( 'tar' );
-const SQL = require( 'sql.js' );
 const archiver = require( 'archiver' );
+const folderHandler = require('./folderHandler');
 
 let mdnHTML = {
 	/*
@@ -30,12 +30,12 @@ let mdnHTML = {
 	getHTML: function ( req, res, next ) {
 		//NOTE:downloading 24 MB .tar to disk
 		try {
-			fs.mkdirSync('./mdnFiles');
+			fs.mkdirSync('./temp');
 		} catch (e) {
-			console.log('./mdnFiles already exists');
+			console.log('./temp already exists');
 		}
 
-		let write = fs.createWriteStream( './mdnFiles/HTML.tgz' );
+		let write = fs.createWriteStream( './temp/HTML.tgz' );
 
 		///////////////////////////////////////////////////////
 		// using the request stream as a ReadStream
@@ -48,7 +48,7 @@ let mdnHTML = {
 			.pipe( write );
 
 		//just to log bytes written - not necessary
-		let watcher = fs.watch( './mdnFiles/HTML.tgz' )
+		let watcher = fs.watch( './temp/HTML.tgz' )
 			.on( 'change', function () {
 				let bytes=(read.bytesWritten/1000000).toFixed(2);
 				require('single-line-log').stdout('HTML: ',bytes +' MB');
@@ -65,7 +65,7 @@ let mdnHTML = {
 		console.log( 'extracting...' );
 		let inflate = zlib.Unzip();
 		let extractor = tar.Extract( {
-				path: './docs'
+				path: './docs/mdn/html'
 			} )
 			.on( 'error', function ( err ) {
 				console.log(err);
@@ -73,7 +73,7 @@ let mdnHTML = {
 			.on( 'end', function () {
 				console.log( 'extracted' );
 			} );
-		let extracting = fs.createReadStream( './mdnFiles/html.tgz' )
+		let extracting = fs.createReadStream( './temp/html.tgz' )
 			.on( 'error', function ( err ) {
 				console.log(err);
 			} )
@@ -88,7 +88,7 @@ let mdnHTML = {
 	 			attrObj = {},
 		 		elemObj = {};
 
-		fs.readdir( './docs' + base, function ( err, files ) {
+		fs.readdir( './docs/mdn/html/' + base, function ( err, files ) {
 			if ( err ) console.log( err );
 			files = files.filter( elem => {
 				return elem.includes( '.html' ) && !elem.includes( '.dashtoc' );
@@ -103,7 +103,7 @@ let mdnHTML = {
 				$( "a[name*='attr-']" ).each( (i , el) => {
 					if($(el).attr('name')){
 						attrIds = $( el ).attr('name').replace(/attr-/g, "");
-						console.log(attrIds);
+						// console.log(attrIds);
 						$(el).attr(`id, #${attrIds}`);
 						attrObj[`${nameOfElem}.${attrIds}`] = `${base}/${file}/#${attrIds}`;
 					}
@@ -118,38 +118,37 @@ let mdnHTML = {
 	},
 	sqlFile: function ( req, res, next ) {
 		let i = 0;
-		let db = new SQL.Database();
-		db.run( "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);" );
-
+		// let db = new SQL.Database();
+		// db.run( "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);" );
+		let jsonIndex = {"sourceName": req.scrapeProps.sourceName, "result": []};
 		for ( let elemName in req.elemObj ) {
-			db.run( "INSERT INTO docsearch VALUES (:ID, :NAME, :TYPE, :LINK)", {
-				':ID': i++,
-				':NAME': elemName,
-				':TYPE': "element",
-				':LINK': req.elemObj[ elemName ]
-			} );
-
+			jsonIndex.result.push({"NAME": elemName, "TYPE": "element", "LINK": req.elemObj[elemName]});
+				// ':ID': i++,
+				// ':NAME': elemName,
+				// ':TYPE': "element",
+				// ':LINK': req.elemObj[ elemName ]
 		}
 		for ( let attrName in req.attrObj ) {
-			db.run( "INSERT INTO docsearch VALUES (:ID, :NAME, :TYPE, :LINK)", {
-				':ID': i++,
-				':NAME': attrName,
-				':TYPE': "attribute",
-				':LINK': req.attrObj[attrName]
-			});
+			jsonIndex.result.push({"NAME": attrName, "TYPE": "attribute", "LINK": req.elemObj[attrName]});
+				// ':ID': i++,
+				// ':NAME': attrName,
+				// ':TYPE': "attribute",
+				// ':LINK': req.attrObj[attrName]
 		}
-		let data = db.export();
-		let buffer = new Buffer( data );
-		fs.writeFileSync( "./docs/mdn_html.sqlite", buffer );
+		// let data = db.export();
+		jsonIndex = JSON.stringify(jsonIndex)
+		fs.writeFileSync( "./docs/mdn/html/index.json", jsonIndex );
 		next();
 	},
 
 	zip: function ( req, res, next ) {
-		let output = fs.createWriteStream( './mdn_html.zip');
+		let output = fs.createWriteStream( './zips/mdn/mdn_html.zip');
 		let archive = archiver('zip');
 
 		output.on('close', function() {
 		  console.log(archive.pointer() + ' total bytes');
+		  req.scrapeProps.filePath = output;
+		  folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir)
 		  console.log('archiver has been finalized and the output file descriptor has closed.');
 			next();
 		});

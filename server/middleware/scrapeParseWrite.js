@@ -18,7 +18,7 @@ var scrapeParseWrite = {
         //check to see if folder exists or create folder to store zip if it doesn't exist
         folderHandler.checkOrCreateFolder(zipFolder);
         //Create output file stream from scrapeDir
-        req.output = fs.createWriteStream(zipFolder+req.scrapeProps.scrapeDir.slice(0,-1)+req.scrapeProps.versionNo+'.zip');
+        req.output = fs.createWriteStream(zipFolder+req.scrapeProps.scrapeDir.slice(0,-1)+req.scrapeProps.scrapeDir+'.zip');
         this.scrape(req, res, next);
     },
 
@@ -48,7 +48,7 @@ var scrapeParseWrite = {
         req.output.on('close', ()=>{
             console.log(req.archive.pointer() + ' total bytes');
             console.log('archiver has been finalized and the output file descriptor has closed.');
-            // folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
+            folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
             req.scrapeProps.filePath = req.output.path;
             console.log(req.output.path);
             // res.versionNo = versionNo;

@@ -11,6 +11,7 @@ test
 ignore_test_files
 website-scraper
 zips
+temp
 
 #include edited version of website_scraper
 !node_modules/website-scraper
