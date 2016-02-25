@@ -15,16 +15,20 @@
   "license": "MIT",
   "dependencies": {
     "archiver": "^0.21.0",
+    "bluebird": "^3.3.1",
     "body-parser": "^1.14.2",
+    "cheerio": "^0.20.0",
     "express": "^4.13.4",
     "mongoose": "^4.4.2",
     "nightmare": "^2.1.6",
     "path": "^0.12.7",
     "phantom": "^0.9.0",
+    "request": "^2.69.0",
     "sql.js": "^0.2.21",
     "tar": "^2.2.1",
     "tar.gz": "^1.0.3",
-    "vo": "^1.0.3"
+    "vo": "^1.0.3",
+    "website-scraper": "file:website-scraper"
   },
   "devDependencies": {
     "morgan": "^1.7.0",
