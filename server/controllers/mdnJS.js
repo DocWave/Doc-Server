@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 const cheerio = require( 'cheerio' );
 const request = require( 'request' );
 const fs = require( 'fs' );
@@ -204,7 +204,9 @@ let mdn = {
 		}
 		let data = db.export();
 		let buffer = new Buffer( data );
+
 		fs.writeFileSync( "docs/mdn_javascript.sqlite", buffer );
+
 		next();
 	},
 	zip: function ( req, res, next ) {
