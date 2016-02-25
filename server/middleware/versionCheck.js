@@ -19,21 +19,40 @@ var versionCheck = {
             //Grab first anchor after #application-menu, most current ver
             var versionString = $('#application-menu a').attr('href');
             //Match returns an array, first element is the match!! slice off trailing /
-            versionString = versionString.match(/[0-9]+.+\//)[0].slice(0,-1)
+            versionString = versionString.match(/[0-9]+.+\//)[0].slice(0,-1);
             req.scrapeProps.versionNo = versionString;
             next();
-        })
+        });
     },
     js: function(req, res, next){
         request.get('https://kapeli.com/mdn_offline', (err, resp, body) => {
             var $ = cheerio.load(body);
             //version string here is going to be the update date
-            var jsLink = $( ".download:contains('JavaScript.tgz')" )
+            var jsLink = $( ".download:contains('JavaScript.tgz')" );
             var versionString = $(jsLink).parent().next('td').text();
             req.scrapeProps.versionNo = versionString;
             next();
-        })
-
+        });
+    },
+    css: function(req, res, next){
+        request.get('https://kapeli.com/mdn_offline', (err, resp, body) => {
+            var $ = cheerio.load(body);
+            //version string here is going to be the update date
+            var jsLink = $( ".download:contains('CSS.tgz')" );
+            var versionString = $(jsLink).parent().next('td').text();
+            req.scrapeProps.versionNo = versionString;
+            next();
+        });
+    },
+    html: function(req, res, next){
+        request.get('https://kapeli.com/mdn_offline', (err, resp, body) => {
+            var $ = cheerio.load(body);
+            //version string here is going to be the update date
+            var jsLink = $( ".download:contains('HTML.tgz')" );
+            var versionString = $(jsLink).parent().next('td').text();
+            req.scrapeProps.versionNo = versionString;
+            next();
+        });
     }
-}
+};
 module.exports = versionCheck;

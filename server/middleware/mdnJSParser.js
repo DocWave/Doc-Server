@@ -5,7 +5,7 @@ const fs = require( 'fs' );
 const zlib = require( 'zlib' );
 const path = require( 'path' );
 const tar = require( 'tar' );
-const SQL = require( 'sql.js' );
+// const SQL = require( 'sql.js' );
 const archiver = require( 'archiver' );
 const folderHandler = require('./folderHandler');
 
@@ -25,8 +25,8 @@ let mdnJS = {
 			//Only use the link that contains the text 'Javascript.tgz'
 			let downloadLink = "https://kapeli.com/" + $( ".download:contains('JavaScript.tgz')" )
 				.attr( "href" );
-			// req.downloadLink = downloadLink;
-			req.downloadLink = 'http://localhost:3000/js2';
+			req.downloadLink = downloadLink;
+			// req.downloadLink = 'http://localhost:3000/js2';
 			next();
 		} );
 	},
@@ -201,7 +201,7 @@ let mdnJS = {
 			class: req.classObj
 		};
 
-		
+
 		let jsonIndex = {'source': req.scrapeProps.sourceName, 'result': []}
 		for ( let k in objects ) {
 			console.log( k );
