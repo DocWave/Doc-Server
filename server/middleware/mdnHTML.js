@@ -74,7 +74,7 @@ let mdnHTML = {
 				console.log( 'extracted' );
 				next();
 			} );
-		let extracting = fs.createReadStream( './temp/html.tgz' )
+		let extracting = fs.createReadStream( './temp/HTML.tgz' )
 			.on( 'error', function ( err ) {
 				console.log(err);
 			} )
@@ -99,7 +99,7 @@ let mdnHTML = {
 				 		attrLinks = [],
 						attrIds;
 
-				let $ = cheerio.load( fs.readFileSync( `./docs${base}/${file}` ) );
+				let $ = cheerio.load( fs.readFileSync( `./docs/mdn/html/documents${base}/${file}` ) );
 
 				$( "a[name*='attr-']" ).each( (i , el) => {
 					if($(el).attr('name')){
@@ -137,7 +137,7 @@ let mdnHTML = {
 				// ':LINK': req.attrObj[attrName]
 		}
 		// let data = db.export();
-		jsonIndex = JSON.stringify(jsonIndex)
+		jsonIndex = JSON.stringify(jsonIndex);
 		fs.writeFileSync( "./docs/mdn/html/index.json", jsonIndex );
 		next();
 	},
