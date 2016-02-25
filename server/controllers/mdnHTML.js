@@ -141,7 +141,6 @@ let mdnHTML = {
 		let data = db.export();
 		let buffer = new Buffer( data );
 		fs.writeFileSync( "./docs/mdn_html.sqlite", buffer );
-
 		next();
 	},
 
@@ -152,6 +151,7 @@ let mdnHTML = {
 		output.on('close', function() {
 		  console.log(archive.pointer() + ' total bytes');
 		  console.log('archiver has been finalized and the output file descriptor has closed.');
+			next();
 		});
 
 		archive.on('error', function(err) {
@@ -165,7 +165,6 @@ let mdnHTML = {
 		]);
 
 		archive.finalize();
-		next();
 	}
 };
 

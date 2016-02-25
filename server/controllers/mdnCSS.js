@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 const cheerio = require( 'cheerio' );
 const request = require( 'request' );
 const fs = require( 'fs' );
@@ -78,15 +78,75 @@ let mdnCSS = {
 			next();
 		} );
 	},
+	getObjs: function(req, res, next){
+		let base = '/CSS/developer.mozilla.org/en-US/docs/Web/CSS/';
+		let $ = cheerio.load(fs.readFileSync('./docs/CSS/developer.mozilla.org/en-US/docs/Web/CSS/Reference.html'));
+		let classObj = {};
+		let elemObj = {};
+		let funcObj = {};
+		let typesObj = {};
+		let propObj = {};
+		let guideObj = {};
+		$('div .index a').each((i, el) => {
+			let text = $(el).text();
+			let link = $(el).attr('href');
+			let classReg = new RegExp (/^:[^:].+/g );
+			let elemReg = new RegExp (/^::/g );
+			let funcReg = new RegExp (/^@|\(\)$/g );
+			let typeReg = new RegExp (/^</g );
+			if(classReg.test(text)){
+				classObj[text]= base + link;
+			}
+			else if(elemReg.test(text)){
+				elemObj[text] = base + link;
+			}
+			else if(funcReg.test(text)){
+				funcObj[text] = base + link;
+			}
+			else if ( typeReg.test(text)){
+				typesObj[text] = base + link;
+			}else{
+				propObj[text] = base + link;
+			}
+		});
+		$('div.column-half li a').each((i, el) => {
+			guideObj[$(el).text()] = base + $(el).attr('href');
+		});
+		req.classObj = classObj;
+		req.elemObj = elemObj;
+		req.funcObj = funcObj;
+		req.typesObj = typesObj;
+		req.propObj = propObj;
+		req.guideObj = guideObj;
+		next();
+	},
+	getMoz : function(req, res, next){
+		let base = '/CSS/developer.mozilla.org/en-US/docs/Web/CSS/';
+		let $ = cheerio.load(fs.readFileSync('./docs/CSS/developer.mozilla.org/en-US/docs/Web/CSS/Mozilla_Extensions.html'));
 
+		$('div .index a').each((i, el) => {
+			let text = $(el).text();
+			let link = $(el).attr('href');
+			let classReg = new RegExp (/^:[^:].+/g );
+			let elemReg = new RegExp (/^::/g );
+			if(classReg.test(text)){
+				req.classObj[text] = base + link;
+			}
+			if(elemReg.test(text)){
+				req.elemObj[text] = base + link;
+			}
+		});
+		next();
+	},
 	sqlFile: function ( req, res, next ) {
 		let i = 0;
 		let objects = {
-			function: req.funcObj,
-			key_word: req.KWObj,
-			events: req.eventsObj,
-			methods: req.methodObj,
-			class: req.classObj
+			Classes:req.classObj ,
+			Elements:req.elemObj,
+			Functions:req.funcObj ,
+			Types:req.typesObj ,
+			Properties:req.propObj,
+		  Guides:req.guideObj
 		};
 
 		let db = new SQL.Database();
@@ -105,17 +165,17 @@ let mdnCSS = {
 		}
 		let data = db.export();
 		let buffer = new Buffer( data );
-		fs.writeFileSync( "doc/mdn_javascript.sqlite", buffer );
-
+		fs.writeFileSync( "docs/mdn_css.sqlite", buffer );
 		next();
 	},
 	zip: function ( req, res, next ) {
-		let output = fs.createWriteStream( './mdn_javascript.zip');
+		let output = fs.createWriteStream( './mdn_css.zip');
 		let archive = archiver('zip');
 
 		output.on('close', function() {
 		  console.log(archive.pointer() + ' total bytes');
 		  console.log('archiver has been finalized and the output file descriptor has closed.');
+			next();
 		});
 
 		archive.on('error', function(err) {
@@ -125,11 +185,10 @@ let mdnCSS = {
 		archive.pipe(output);
 
 		archive.bulk([
-		  { expand: true, cwd: 'doc/', src: ['**'], dest:'mdn_css.docs' }
+		  { expand: true, cwd: 'docs/', src: ['**'], dest:'mdn_css.docs' }
 		]);
 
 		archive.finalize();
-		next();
 	}
 };
 

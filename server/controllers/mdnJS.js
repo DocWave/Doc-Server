@@ -64,11 +64,7 @@ let mdn = {
 		console.log( 'extracting...' );
 		let inflate = zlib.Unzip();
 		let extractor = tar.Extract( {
-<<<<<<< HEAD:server/controllers/mdnJS.js
-				path: './doc'
-=======
 				path: './docs'
->>>>>>> eb9e6ce1be54086ff3401e529c4f3f344410a048:server/controllers/mdnParser.js
 			} )
 			.on( 'error', function ( err ) {
 				throw err;
@@ -208,12 +204,7 @@ let mdn = {
 		}
 		let data = db.export();
 		let buffer = new Buffer( data );
-<<<<<<< HEAD:server/controllers/mdnJS.js
-		fs.writeFileSync( "./doc/mdn_javascript.sqlite", buffer );
-=======
 		fs.writeFileSync( "docs/mdn_javascript.sqlite", buffer );
->>>>>>> eb9e6ce1be54086ff3401e529c4f3f344410a048:server/controllers/mdnParser.js
-
 		next();
 	},
 	zip: function ( req, res, next ) {
@@ -226,7 +217,7 @@ let mdn = {
 			  if(err) console.log(err);
 			  console.log(archive.pointer() + ' total bytes');
 			  console.log('archiver has been finalized and the output file descriptor has closed.');
-		  } )
+		  } );
 		});
 
 		archive.on('error', function(err) {
