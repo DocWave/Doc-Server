@@ -23,7 +23,6 @@ var parser = {
                 if(name.match(/^Class\sMethod:\s/)){
                     name = name.replace(/^Class\sMethod:\s/, "");
                 }
-                console.log(name);
                 jsonFile.result.push({"NAME": name, "TYPE": "method", "LINK":filename.concat(link)});
                 //Push into methods for determining if its an addon page or not
                 i++;

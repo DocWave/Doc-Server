@@ -211,9 +211,8 @@ let mdnJS = {
 		}
 		jsonIndex = JSON.stringify(jsonIndex);
 		fs.writeFileSync( "docs/mdn/javascript/index.json", jsonIndex );
-		d = new Date();
-		console.log(d.getMinutes(), d.getSeconds());
-
+		//Null out jsonIndex
+		jsonIndex = null;
 		next();
 	},
 	zip: function ( req, res, next ) {
@@ -234,11 +233,10 @@ let mdnJS = {
   			  req.eventsObj = null;
   			  req.methodObj = null;
   			  req.classObj = null;
-			  jsonIndex = null;
 	  		  console.log(d.getMinutes(), d.getSeconds());
 			  console.log(archive.pointer() + ' total bytes');
 			  console.log('archiver has been finalized and the output file descriptor has closed.');
-			//   folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
+			  folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
 			  next();
 
 		  } )
