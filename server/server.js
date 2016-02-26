@@ -64,13 +64,15 @@ app.get( '/mdn_html', requestProps.html, version.html, dbController.needUpdate,
 				mdnHTML.sqlFile, mdnHTML.zip, dbController.addToDB,
 				function ( req, res ) {
 					res.sendFile(path.resolve(req.scrapeProps.filePath));
+					req.scrapeProps = null;
 					console.log('\n finished');
 });
 app.get( '/mdn_css', requestProps.css, version.css, dbController.needUpdate,
 		mdnCSS.download, mdnCSS.getCSS, mdnCSS.extract, mdnCSS.getObjs, mdnCSS.getMoz,
-		mdnCSS.sqlFile, mdnCSS.zip, dbController.addToDB, 
+		mdnCSS.sqlFile, mdnCSS.zip, dbController.addToDB,
 		function ( req, res ) {
 			res.sendFile(path.resolve(req.scrapeProps.filePath));
+			req.scrapeProps = null;
 			console.log('\n finished');
 });
 app.get('/mdn_javascript', requestProps.js, version.js, dbController.needUpdate, mdnJS.download,
@@ -80,6 +82,7 @@ app.get('/mdn_javascript', requestProps.js, version.js, dbController.needUpdate,
 				function(req, res){
 					console.log(req.scrapeProps.filePath, "HELLO ");
 					res.sendFile(path.resolve(req.scrapeProps.filePath));
+					req.scrapeProps = null;
 					console.log("sending full html back to client");
 });
 ///////////////////////////////////////////////////////////////////////////////
@@ -88,6 +91,7 @@ app.get('/mdn_javascript', requestProps.js, version.js, dbController.needUpdate,
 app.get('/node', requestProps.node, version.node, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
     // console.log("HELLO ");
     res.sendFile(path.resolve(req.scrapeProps.filePath));
+	req.scrapeProps = null;
     console.log("sending full html back to client");
 });
 //////////////////////////////////////////////////
@@ -113,6 +117,7 @@ app.get('/express', requestProps.express, version.express, dbController.needUpda
 		function(req,res){
 		    console.log(res.filePath, "HELLO ");
 		    res.sendFile(path.resolve(req.scrapeProps.filePath));
+			req.scrapeProps = null;
 		    console.log("sending full html back to client");
 });
 

@@ -151,7 +151,12 @@ let mdnCSS = {
 			Properties:req.propObj,
 		  Guides:req.guideObj
 		};
-
+		req.classObj = null;
+		req.elemObj = null;
+		req.funcObj = null;
+		req.typesObj = null;
+		req.propObj = null;
+		req.guideObj = null;
 		for ( let k in objects ) {
 			console.log( k );
 			for ( let j in objects[ k ] ) {
@@ -168,6 +173,14 @@ let mdnCSS = {
 		req.scrapeProps.filePath = './zips/mdn/mdn_css.zip';
 		output.on('close', function() {
 			fs.unlink('./temp/HTML.tgz', (err) => {
+				//Null out jsonindex and req stuff
+				req.classObj = null;
+				req.elemObj = null;
+				req.funcObj = null;
+				req.typesObj = null;
+				req.propObj = null;
+				req.guideObj = null;
+				jsonIndex = null;
 		  		console.log(archive.pointer() + ' total bytes');
 				folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
 		  		console.log('archiver has been finalized and the output file descriptor has closed.');

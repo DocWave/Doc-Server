@@ -1,7 +1,6 @@
 var fs = require('fs');
-var parser = require('./parser')
+var parser = require('./parser');
 // var sql = require('sql.js')
-var Promise = require('bluebird')
 
 
  var parseEntry = {
@@ -16,7 +15,7 @@ var Promise = require('bluebird')
         // var sqlstr = "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);";
         // db.run(sqlstr)
         fs.readdir(req.scrapeProps.downloadDir, (err, file) => {
-            console.log(err)
+            console.log(err);
             list = file;
             // console.log(storage.DB);
             list.forEach((name) => {
@@ -41,9 +40,10 @@ var Promise = require('bluebird')
             // var buff = new Buffer(data);
             jsonFile = JSON.stringify(jsonFile);
             fs.writeFileSync(req.scrapeProps.baseDir+'/index.json', jsonFile);
-
+            //Null out jsonFile
+            jsonFile = null;
             //Be sure to resolve the promise when readdir is done
-            resolve("Resolved")
+            resolve("Resolved");
         })
     }
 }

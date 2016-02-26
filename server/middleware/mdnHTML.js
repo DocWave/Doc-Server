@@ -150,6 +150,9 @@ let mdnHTML = {
 		output.on('close', function() {
 			fs.unlink('./temp/HTML.tgz', (err) => {
 				if(err) console.log(err);
+				req.elemObj = null;
+				req.attrObj = null;
+				jsonIndex = null;
 			  	console.log(archive.pointer() + ' total bytes');
 			  	folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
 			  	console.log('archiver has been finalized and the output file descriptor has closed.');

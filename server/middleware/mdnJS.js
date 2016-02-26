@@ -229,6 +229,12 @@ let mdnJS = {
 		  fs.unlink('./temp/JavaScript.tgz', (err) => {
 			  if(err) console.log(err);
 			  d = new Date;
+			  req.funcObj = null;
+  			  req.KWObj = null;
+  			  req.eventsObj = null;
+  			  req.methodObj = null;
+  			  req.classObj = null;
+			  jsonIndex = null;
 	  		  console.log(d.getMinutes(), d.getSeconds());
 			  console.log(archive.pointer() + ' total bytes');
 			  console.log('archiver has been finalized and the output file descriptor has closed.');
