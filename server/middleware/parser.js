@@ -17,12 +17,13 @@ var parser = {
             //Add href of link to filename
             var link = $(el).attr('href');
             //Match Methods (they have X.string(blah) )
-            if(name.match(/\w+\(\w*\)\#$/g)){
+            if(name.match(/\w+\(.*\)\#$/g)){
                 name = name.replace(/\(.*\)\#/g, "");
                 //Handle Class Methods
                 if(name.match(/^Class\sMethod:\s/)){
                     name = name.replace(/^Class\sMethod:\s/, "");
                 }
+                console.log(name);
                 jsonFile.result.push({"NAME": name, "TYPE": "method", "LINK":filename.concat(link)});
                 //Push into methods for determining if its an addon page or not
                 i++;
@@ -34,7 +35,7 @@ var parser = {
                 if(!name.match(/Class/)){
                     name = name.slice(0,-1);
                     // sqlstr += `INSERT INTO docsearch VALUES (${i}, '${name}', 'property', '${filename.concat(link)}');`;
-                    jsonFile.result.push({"NAME": name, "TYPE": "property", "LINK":filename.concat(link)})
+                    jsonFile.result.push({"NAME": name, "TYPE": "property", "LINK":filename.concat(link)});
 
                     i++;
                 }
