@@ -165,6 +165,8 @@ let mdnCSS = {
 		}
 		jsonIndex = JSON.stringify(jsonIndex);
 		fs.writeFileSync( "docs/mdn/css/index.json", jsonIndex );
+		//Null out jsonIndex
+		jsonIndex = null;
 		next();
 	},
 	zip: function ( req, res, next ) {
@@ -180,7 +182,6 @@ let mdnCSS = {
 				req.typesObj = null;
 				req.propObj = null;
 				req.guideObj = null;
-				jsonIndex = null;
 		  		console.log(archive.pointer() + ' total bytes');
 				folderHandler.deleteFolderRecursive(req.scrapeProps.baseDir);
 		  		console.log('archiver has been finalized and the output file descriptor has closed.');
