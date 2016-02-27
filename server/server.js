@@ -79,7 +79,7 @@ app.get( '/', function ( req, res ) {
 app.get('/updateVersions', updates.MDN_CSS, updates.MDN_HTML, updates.MDN_Javascript, updates.NodeJS, updates.Express_API,
 		function(req, res){
 			req.scrapeProps = null;
-			res.send("done");
+			res.end();
 });
 app.get( '/mdn_html', requestProps.html, dbController.latestVer, function ( req, res ) {
 		res.sendFile(path.resolve(req.scrapeProps.filePath));
