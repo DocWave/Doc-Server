@@ -20,26 +20,21 @@ mongoose.connect( 'mongodb://Doc:tor@ds059215.mongolab.com:59215/doc-tor' );
 const db = mongoose.connection;
 const app = express();
 
-const updates = {"MDN HTML": {"check": [requestProps.html, version.html, dbController.needUpdate],
-						"update": [mdnHTML.download, mdnHTML.getHTML, mdnHTML.extract, mdnHTML.getElements,
-						mdnHTML.sqlFile, mdnHTML.zip, dbController.addToDB]},
+const updates = {"MDN_HTML":[requestProps.html, version.html, mdnHTML.download, mdnHTML.getHTML,
+						mdnHTML.extract, mdnHTML.getElements, mdnHTML.sqlFile, mdnHTML.zip, dbController.addToDB],
 
-				"MDN CSS": {"check": [requestProps.css, version.css, dbController.needUpdate],
-						"update": [mdnCSS.download, mdnCSS.getCSS, mdnCSS.extract, mdnCSS.getObjs, mdnCSS.getMoz,
-						mdnCSS.sqlFile, mdnCSS.zip, dbController.addToDB]},
+				"MDN_CSS": [requestProps.css, version.css, mdnCSS.download, mdnCSS.getCSS,
+						mdnCSS.extract, mdnCSS.getObjs, mdnCSS.getMoz,
+						mdnCSS.sqlFile, mdnCSS.zip, dbController.addToDB],
 
-				"MDN JS": {"check": [requestProps.js, version.js, dbController.needUpdate],
-				 		"update": [mdnJS.download, mdnJS.getJavascript, mdnJS.extract, mdnJS.createClassObj,
-						mdnJS.createMethodsObj, mdnJS.createEventObj, mdnJS.createKWObj,
-						mdnJS.createFuncObj, mdnJS.sqlFile, mdnJS.zip, dbController.addToDB]},
+				"MDN_Javascript": [requestProps.js, version.js, dbController.needUpdate, mdnJS.download, mdnJS.getJavascript,
+						mdnJS.extract, mdnJS.createClassObj, mdnJS.createMethodsObj, mdnJS.createEventObj,
+						mdnJS.createKWObj, mdnJS.createFuncObj, mdnJS.sqlFile, mdnJS.zip, dbController.addToDB],
 
-				"NodeJS": {"check": [requestProps.node, version.node, dbController.needUpdate],
-						"update": [scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB]},
+				"NodeJS": [requestProps.node, version.node, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB],
 
-				"Express API":{"check": [requestProps.express, version.express, dbController.needUpdate],
-						"update": [scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB]}
+				"Express_API":[requestProps.express, version.express, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB]
 			};
-
 
 require( 'dns' )
 	.lookup( require( 'os' )
@@ -81,13 +76,10 @@ app.get( '/', function ( req, res ) {
 // 	console.log('\n finished');
 // });
 
-app.get('/updateVersions', updates.css.check, updates.html.check, updates.js.check, updates.node.check,
-		updates.express.check, function(req,res,next){
-				for(var key in req.needsUpdate){
-					console.log(req.needsUpdate[key]);
-				}
-				req.scrapeProps = null;
-				res.send("error");
+app.get('/updateVersions', updates.MDN_CSS, updates.MDN_HTML, updates.MDN_Javascript, updates.NodeJS, updates.Express_API,
+		function(req, res){
+			req.scrapeProps = null;
+			res.send("done");
 });
 app.get( '/mdn_html', requestProps.html, dbController.latestVer, function ( req, res ) {
 		res.sendFile(path.resolve(req.scrapeProps.filePath));
