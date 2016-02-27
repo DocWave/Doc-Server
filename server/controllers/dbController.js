@@ -9,39 +9,53 @@ module.exports = {
       console.log(req.scrapeProps.sourceName);
       query.findOne({},{},{ sort: { 'createdAt' : -1 } }, function(err, foundVer){
           if(err) console.log(err);
+          try{
+            //   console.log("found ");
+              let fileStats = fs.statSync(path.resolve(foundUpdate.filePath));
+              //If we find that we have the same version, send the version we already have
+              return res.sendFile(path.resolve(foundVer.filePath));
+          }
+          //We didn't find the file in the directory, so proceed as usual
+          catch(e){
+              next();
+          }
           console.log(foundVer);
           return res.sendFile(path.resolve(foundVer.filePath));
       });
   },
   needUpdate : function(req, res, next){
+      if(!req.needUpdate)
+        req.needUpdate = {};
       let query = Update.where({versionNo: req.scrapeProps.versionNo,
                                 sourceName: req.scrapeProps.sourceName});
      query.findOne( function (err, foundUpdate){
         //takes in an err from findOne and the returned Doc
         if(err) console.log(err);
-        console.log("finding");
+        // console.log("finding");
         if(!foundUpdate){
         //no update found, send continue the middleware!
             console.log("\n\n\t\tNew version, updating\n\n");
-            req.needUpdate[req.scrapeProps.sourceName] = true;
             next();
         }
 
         else if ( foundUpdate ){ // if the Doc exists update
             //Also check if we have the file right now, just in case it got deleted
-            console.log("found ");
             try{
+                console.log("found ");
+
                 let fileStats = fs.statSync(path.resolve(foundUpdate.filePath));
                 //If we find that we have the same version, send the version we already have
                 //break out of the middleware!
                 // console.log("\n\n\t\tFile Found, sending local copy\n\n");
                 // return res.sendFile(path.resolve(foundUpdate.filePath));
-                req.needUpdate[req.scrapeProps.sourceName] = false;
                 next();
             }
             //We didn't find the file in the directory, so proceed as usual
             catch(e){
                 console.log("File not found....");
+                console.log(foundUpdate.filePath);
+                req.needUpdate[req.scrapeProps.sourceName.replace(/\s/g, "_")] = true;
+
                 next();
             }
 
