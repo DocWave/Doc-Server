@@ -32,7 +32,7 @@ const updates = {"html": [requestProps.html, version.html, dbController.needUpda
 				mdnJS.createFuncObj, mdnJS.sqlFile, mdnJS.zip, dbController.addToDB],
 				"node": [requestProps.node, version.node, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB],
 				"express":[requestProps.express, version.express, dbController.needUpdate,
-				scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB]}
+				scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB]};
 
 
 require( 'dns' )
@@ -80,48 +80,33 @@ app.get('/updateVersions', updates.css, updates.html, updates.js, updates.node,
 				req.scrapeProps = null;
 				res.send("error");
 });
-app.get( '/mdn_html', requestProps.html, version.html, dbController.needUpdate,
-				mdnHTML.download, mdnHTML.getHTML, mdnHTML.extract, mdnHTML.getElements,
-				mdnHTML.sqlFile, mdnHTML.zip, dbController.addToDB,
-				function ( req, res ) {
-					res.sendFile(path.resolve(req.scrapeProps.filePath));
-					req.scrapeProps = null;
-					console.log('\n finished');
+app.get( '/mdn_html', requestProps.html, dbController.latestVer, function ( req, res ) {
+		res.sendFile(path.resolve(req.scrapeProps.filePath));
+		req.scrapeProps = null;
+		// console.log('\n finished');
 });
-app.get( '/mdn_css', requestProps.css, version.css, dbController.needUpdate,
-		mdnCSS.download, mdnCSS.getCSS, mdnCSS.extract, mdnCSS.getObjs, mdnCSS.getMoz,
-		mdnCSS.sqlFile, mdnCSS.zip, dbController.addToDB,
-		function ( req, res ) {
-			res.sendFile(path.resolve(req.scrapeProps.filePath));
-			req.scrapeProps = null;
-			console.log('\n finished');
+app.get( '/mdn_css', requestProps.css, dbController.latestVer, function ( req, res ) {
+		res.sendFile(path.resolve(req.scrapeProps.filePath));
+		req.scrapeProps = null;
+		// console.log('\n finished');
 });
-app.get('/mdn_javascript', requestProps.js, version.js, dbController.needUpdate, mdnJS.download,
- 				mdnJS.getJavascript, mdnJS.extract, mdnJS.createClassObj,
-				mdnJS.createMethodsObj, mdnJS.createEventObj, mdnJS.createKWObj,
-				mdnJS.createFuncObj, mdnJS.sqlFile, mdnJS.zip, dbController.addToDB,
-				function(req, res){
-					console.log(req.scrapeProps.filePath, "HELLO ");
-					res.sendFile(path.resolve(req.scrapeProps.filePath));
-					req.scrapeProps = null;
-					console.log("sending full html back to client");
+app.get('/mdn_javascript', requestProps.js, dbController.latestVer, function(req, res){
+		res.sendFile(path.resolve(req.scrapeProps.filePath));
+		req.scrapeProps = null;
+		// console.log("sending full html back to client");
 });
 ///////////////////////////////////////////////////////////////////////////////
 /// BIND SCRAPEPARSEWRITE.CREATEZIP TO ITSELF SO IT BIND TO THE CORRECT CONTEXT
 ///////////////////////////////////////////////////////////////////////////////
-app.get('/node', requestProps.node, version.node, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB, function(req,res){
-    // console.log("HELLO ");
-    res.sendFile(path.resolve(req.scrapeProps.filePath));
-	req.scrapeProps = null;
-    console.log("sending full html back to client");
+app.get('/node', requestProps.node, dbController.latestVer, function(req,res){
+    	res.sendFile(path.resolve(req.scrapeProps.filePath));
+		req.scrapeProps = null;
+    	// console.log("sending full html back to client");
 });
-app.get('/express', requestProps.express, version.express, dbController.needUpdate,
-		scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB,
-		function(req,res){
-		    console.log(res.filePath, "HELLO ");
-		    res.sendFile(path.resolve(req.scrapeProps.filePath));
-			req.scrapeProps = null;
-		    console.log("sending full html back to client");
+app.get('/express', requestProps.express, dbController.latestVer, function(req,res){
+	    res.sendFile(path.resolve(req.scrapeProps.filePath));
+		req.scrapeProps = null;
+	    // console.log("sending full html back to client");
 });
 //////////////////////////////////////////////////
 // Test crash reporting route
