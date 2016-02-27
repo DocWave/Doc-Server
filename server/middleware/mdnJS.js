@@ -202,7 +202,8 @@ let mdnJS = {
 		};
 		console.log(d.getMinutes(), d.getSeconds());
 
-		let jsonIndex = {'source': req.scrapeProps.sourceName, 'result': []};
+		let jsonIndex = {"sourceName": req.scrapeProps.sourceName,
+				"versionNo": req.scrapeProps.versionNo, "result": []};
 		for ( let k in objects ) {
 			// console.log( k );
 			for ( let j in objects[ k ] ) {

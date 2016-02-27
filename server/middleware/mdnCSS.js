@@ -142,7 +142,8 @@ let mdnCSS = {
 	},
 	sqlFile: function ( req, res, next ) {
 		let i = 0;
-		let jsonIndex = {"sourceName": req.scrapeProps.sourceName, "result": []};
+		let jsonIndex = {"sourceName": req.scrapeProps.sourceName,
+				"versionNo": req.scrapeProps.versionNo, "result": []};
 		let objects = {
 			Classes:req.classObj ,
 			Elements:req.elemObj,

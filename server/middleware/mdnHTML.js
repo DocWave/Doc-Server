@@ -122,7 +122,8 @@ let mdnHTML = {
 		let i = 0;
 		// let db = new SQL.Database();
 		// db.run( "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);" );
-		let jsonIndex = {"sourceName": req.scrapeProps.sourceName, "result": []};
+		let jsonIndex = {"sourceName": req.scrapeProps.sourceName,
+				"versionNo": req.scrapeProps.versionNo, "result": []};
 		for ( let elemName in req.elemObj ) {
 			jsonIndex.result.push({"NAME": elemName, "TYPE": "element", "LINK": req.elemObj[elemName]});
 				// ':ID': i++,
