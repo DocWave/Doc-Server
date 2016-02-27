@@ -81,8 +81,8 @@ app.get( '/', function ( req, res ) {
 // 	console.log('\n finished');
 // });
 
-app.get('/updateVersions', updates.css, updates.html, updates.js, updates.node,
-		updates.express, function(req,res,next){
+app.get('/updateVersions', updates.css.check, updates.html.check, updates.js.check, updates.node.check,
+		updates.express.check, function(req,res,next){
 				for(var key in req.needsUpdate){
 					console.log(req.needsUpdate[key]);
 				}
