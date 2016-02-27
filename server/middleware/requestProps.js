@@ -10,7 +10,6 @@
 let requestProps = {
     node: function(req, res, next){
         //Just in case garbage collection
-        req.scrapeProps = {};
         req.scrapeProps = {
             urlsToScrape: ['http://nodejs.org/api/'],
             sourceName: 'NodeJS',
@@ -28,7 +27,6 @@ let requestProps = {
     },
     express: function(req, res, next){
         //Just in case garbage collection
-        req.scrapeProps = {};
         req.scrapeProps = {
             urlsToScrape: [
                         {url: 'http://expressjs.com/en/4x/api.html', filename: 'api.html'},
@@ -64,7 +62,6 @@ let requestProps = {
     },
     js: function(req, res, next){
         //Just in case garbage collection
-        req.scrapeProps = {};
         req.scrapeProps = {
             // URL_TO_SCRAPE: ,
             sourceName:"MDN Javascript",
@@ -78,7 +75,6 @@ let requestProps = {
     },
     html: function(req, res, next){
         //Just in case garbage collection
-        req.scrapeProps = {};
         req.scrapeProps = {
             // URL_TO_SCRAPE: ,
             sourceName:"MDN HTML",
@@ -92,7 +88,6 @@ let requestProps = {
     },
     css: function(req, res, next){
         //Just in case garbage collection
-        req.scrapeProps = {};
         req.scrapeProps = {
             // URL_TO_SCRAPE: ,
             sourceName:"MDN CSS",
