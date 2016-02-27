@@ -23,6 +23,7 @@ module.exports = {
         if(!foundUpdate){
         //no update found, send continue the middleware!
             console.log("\n\n\t\tNew version, updating\n\n");
+            req.needUpdate[req.scrapeProps.sourceName] = true;
             next();
         }
 
@@ -33,8 +34,10 @@ module.exports = {
                 let fileStats = fs.statSync(path.resolve(foundUpdate.filePath));
                 //If we find that we have the same version, send the version we already have
                 //break out of the middleware!
-                console.log("\n\n\t\tFile Found, sending local copy\n\n");
-                return res.sendFile(path.resolve(foundUpdate.filePath));
+                // console.log("\n\n\t\tFile Found, sending local copy\n\n");
+                // return res.sendFile(path.resolve(foundUpdate.filePath));
+                req.needUpdate[req.scrapeProps.sourceName] = false;
+                next();
             }
             //We didn't find the file in the directory, so proceed as usual
             catch(e){

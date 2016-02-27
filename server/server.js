@@ -20,19 +20,25 @@ mongoose.connect( 'mongodb://Doc:tor@ds059215.mongolab.com:59215/doc-tor' );
 const db = mongoose.connection;
 const app = express();
 
-const updates = {"html": [requestProps.html, version.html, dbController.needUpdate,
-				mdnHTML.download, mdnHTML.getHTML, mdnHTML.extract, mdnHTML.getElements,
-				mdnHTML.sqlFile, mdnHTML.zip, dbController.addToDB],
-				"css": [requestProps.css, version.css, dbController.needUpdate,
-				mdnCSS.download, mdnCSS.getCSS, mdnCSS.extract, mdnCSS.getObjs, mdnCSS.getMoz,
-				mdnCSS.sqlFile, mdnCSS.zip, dbController.addToDB],
-				"js": [requestProps.js, version.js, dbController.needUpdate, mdnJS.download,
-				mdnJS.getJavascript, mdnJS.extract, mdnJS.createClassObj,
-				mdnJS.createMethodsObj, mdnJS.createEventObj, mdnJS.createKWObj,
-				mdnJS.createFuncObj, mdnJS.sqlFile, mdnJS.zip, dbController.addToDB],
-				"node": [requestProps.node, version.node, dbController.needUpdate, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB],
-				"express":[requestProps.express, version.express, dbController.needUpdate,
-				scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB]};
+const updates = {"MDN HTML": {"check": [requestProps.html, version.html, dbController.needUpdate],
+						"update": [mdnHTML.download, mdnHTML.getHTML, mdnHTML.extract, mdnHTML.getElements,
+						mdnHTML.sqlFile, mdnHTML.zip, dbController.addToDB]},
+
+				"MDN CSS": {"check": [requestProps.css, version.css, dbController.needUpdate],
+						"update": [mdnCSS.download, mdnCSS.getCSS, mdnCSS.extract, mdnCSS.getObjs, mdnCSS.getMoz,
+						mdnCSS.sqlFile, mdnCSS.zip, dbController.addToDB]},
+
+				"MDN JS": {"check": [requestProps.js, version.js, dbController.needUpdate],
+				 		"update": [mdnJS.download, mdnJS.getJavascript, mdnJS.extract, mdnJS.createClassObj,
+						mdnJS.createMethodsObj, mdnJS.createEventObj, mdnJS.createKWObj,
+						mdnJS.createFuncObj, mdnJS.sqlFile, mdnJS.zip, dbController.addToDB]},
+
+				"NodeJS": {"check": [requestProps.node, version.node, dbController.needUpdate],
+						"update": [scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB]},
+
+				"Express API":{"check": [requestProps.express, version.express, dbController.needUpdate],
+						"update": [scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB]}
+			};
 
 
 require( 'dns' )
@@ -77,6 +83,9 @@ app.get( '/', function ( req, res ) {
 
 app.get('/updateVersions', updates.css, updates.html, updates.js, updates.node,
 		updates.express, function(req,res,next){
+				for(var key in req.needsUpdate){
+					console.log(req.needsUpdate[key]);
+				}
 				req.scrapeProps = null;
 				res.send("error");
 });
