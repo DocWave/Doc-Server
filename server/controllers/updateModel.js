@@ -6,7 +6,8 @@ var updateSchema = new Schema({
   sourceName: String,
   versionNo: String,
   filePath:  String,
-  retrieved: { type: Date, default: Date.now }
+  retrieved: { type: Date, default: Date.now },
+  createdAt: {type: Date, default: Date.now}
 });
 
 module.exports = mongoose.model('Update', updateSchema);

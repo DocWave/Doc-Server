@@ -217,9 +217,9 @@ let mdnJS = {
 	},
 	zip: function ( req, res, next ) {
 		console.log('zipping');
-		let output = fs.createWriteStream( './zips/mdn/mdn_javascript.zip');
+		let output = fs.createWriteStream( './zips/mdn/mdn_javascript'+req.scrapeProps.versionNo+'.zip');
 		//Add to req
-		req.scrapeProps.filePath = './zips/mdn/mdn_javascript.zip';
+		req.scrapeProps.filePath = './zips/mdn/mdn_javascript'+req.scrapeProps.versionNo+'.zip';
 		let archive = archiver('zip');
 		var d = new Date();
 		console.log(d.getMinutes(), d.getSeconds());

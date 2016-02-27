@@ -9,6 +9,8 @@
 
 let requestProps = {
     node: function(req, res, next){
+        //Just in case garbage collection
+        req.scrapeProps = {};
         req.scrapeProps = {
             urlsToScrape: ['http://nodejs.org/api/'],
             sourceName: 'NodeJS',
@@ -24,20 +26,9 @@ let requestProps = {
         };
         next();
     },
-    express2: function(req,res,next){
-        req.scrapeProps = {
-            sourceName: 'ExpressJS',
-            cssDir: 'css',
-            jsDir: 'js',
-            scrapeDir: 'express/',
-            baseDir: 'docs/express/',
-            downloadDir: 'zips/express/express.docs/documents/',
-            RECURSIVE: false,
-            versionNo: "",
-        };
-        next();
-    },
     express: function(req, res, next){
+        //Just in case garbage collection
+        req.scrapeProps = {};
         req.scrapeProps = {
             urlsToScrape: [
                         {url: 'http://expressjs.com/en/4x/api.html', filename: 'api.html'},
@@ -72,6 +63,8 @@ let requestProps = {
         next();
     },
     js: function(req, res, next){
+        //Just in case garbage collection
+        req.scrapeProps = {};
         req.scrapeProps = {
             // URL_TO_SCRAPE: ,
             sourceName:"MDN Javascript",
@@ -84,6 +77,8 @@ let requestProps = {
         next();
     },
     html: function(req, res, next){
+        //Just in case garbage collection
+        req.scrapeProps = {};
         req.scrapeProps = {
             // URL_TO_SCRAPE: ,
             sourceName:"MDN HTML",
@@ -96,6 +91,8 @@ let requestProps = {
         next();
     },
     css: function(req, res, next){
+        //Just in case garbage collection
+        req.scrapeProps = {};
         req.scrapeProps = {
             // URL_TO_SCRAPE: ,
             sourceName:"MDN CSS",
