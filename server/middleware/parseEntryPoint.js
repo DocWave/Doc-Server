@@ -9,7 +9,8 @@ var parser = require('./parser');
         //initialize sql query
         //move outside of function?
         var i = 0;
-        var jsonFile = {"sourceName": req.scrapeProps.sourceName,"result": []};
+        var jsonFile = {"sourceName": req.scrapeProps.sourceName,
+            "versionNo": req.scrapeProps.versionNo, "result": []};
         //create an object to store the index and the database
         // var storage = {"DB": db, "index": i};
         // var sqlstr = "CREATE TABLE docsearch (ID int, NAME char, TYPE char, LINK char);";
