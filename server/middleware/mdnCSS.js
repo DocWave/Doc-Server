@@ -81,7 +81,7 @@ let mdnCSS = {
 		} );
 	},
 	getObjs: function(req, res, next){
-		let base = '/CSS/developer.mozilla.org/en-US/docs/Web/CSS/';
+		let base = 'CSS/developer.mozilla.org/en-US/docs/Web/CSS/';
 		let $ = cheerio.load(fs.readFileSync('./docs/mdn/css/documents/CSS/developer.mozilla.org/en-US/docs/Web/CSS/Reference.html'));
 		let classObj = {};
 		let elemObj = {};
@@ -123,7 +123,7 @@ let mdnCSS = {
 		next();
 	},
 	getMoz : function(req, res, next){
-		let base = '/CSS/developer.mozilla.org/en-US/docs/Web/CSS/';
+		let base = 'CSS/developer.mozilla.org/en-US/docs/Web/CSS/';
 		let $ = cheerio.load(fs.readFileSync('./docs/mdn/css/documents/CSS/developer.mozilla.org/en-US/docs/Web/CSS/Mozilla_Extensions.html'));
 
 		$('div .index a').each((i, el) => {
@@ -158,7 +158,7 @@ let mdnCSS = {
 		req.propObj = null;
 		req.guideObj = null;
 		for ( let k in objects ) {
-			console.log( k );
+			// console.log( k );
 			for ( let j in objects[ k ] ) {
 				jsonIndex.result.push({"NAME": j, "TYPE": k, "LINK": objects[k][j]});
 			}
@@ -170,9 +170,9 @@ let mdnCSS = {
 		next();
 	},
 	zip: function ( req, res, next ) {
-		let output = fs.createWriteStream( 'zips/mdn/mdn_css.zip');
+		let output = fs.createWriteStream( 'zips/mdn/mdn_css'+req.scrapeProps.versionNo+'.zip');
 		let archive = archiver('zip');
-		req.scrapeProps.filePath = './zips/mdn/mdn_css.zip';
+		req.scrapeProps.filePath = './zips/mdn/mdn_css'+req.scrapeProps.versionNo+'.zip';
 		output.on('close', function() {
 			fs.unlink('./temp/HTML.tgz', (err) => {
 				//Null out jsonindex and req stuff

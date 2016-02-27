@@ -4,7 +4,15 @@ const path = require('path');
 const fs = require('fs');
 
 module.exports = {
-
+  latestVer: function(req, res, next){
+      let query = Update.where({sourceName: req.scrapeProps.sourceName});
+      console.log(req.scrapeProps.sourceName);
+      query.findOne({},{},{ sort: { 'createdAt' : -1 } }, function(err, foundVer){
+          if(err) console.log(err);
+          console.log(foundVer);
+          return res.sendFile(path.resolve(foundVer.filePath));
+      });
+  },
   needUpdate : function(req, res, next){
       let query = Update.where({versionNo: req.scrapeProps.versionNo,
                                 sourceName: req.scrapeProps.sourceName});
@@ -37,13 +45,13 @@ module.exports = {
         }
       });
   },
-
   addToDB : function(req, res, next){
       //assigns a new Update document to the variable update
       let update = new Update ({sourceName : req.scrapeProps.sourceName,
                                 versionNo : req.scrapeProps.versionNo,
                                 filePath : req.scrapeProps.filePath,
-                                retrieved : Date.now()});
+                                retrieved : Date.now(),
+                                createdAt : Date.now()});
 
       //store our query in a variable
       //fileName = the name of documentation

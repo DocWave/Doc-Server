@@ -85,7 +85,7 @@ let mdnHTML = {
 		} );
 	},
 	getElements: function ( req, res, next ) {
-		let base = '/HTML/developer.mozilla.org/en-US/docs/Web/HTML/Element',
+		let base = 'HTML/developer.mozilla.org/en-US/docs/Web/HTML/Element',
 	 			attrObj = {},
 		 		elemObj = {};
 
@@ -99,16 +99,17 @@ let mdnHTML = {
 				 		attrLinks = [],
 						attrIds;
 
-				let $ = cheerio.load( fs.readFileSync( `./docs/mdn/html/documents${base}/${file}` ) );
+				let $ = cheerio.load( fs.readFileSync( `./docs/mdn/html/documents/${base}/${file}` ) );
 
 				$( "a[name*='attr-']" ).each( (i , el) => {
 					if($(el).attr('name')){
 						attrIds = $( el ).attr('name').replace(/attr-/g, "");
 						// console.log(attrIds);
-						$(el).attr(`id, #${attrIds}`);
-						attrObj[`${nameOfElem}.${attrIds}`] = `${base}/${file}/#${attrIds}`;
+						$(el).attr(`id`, `#${attrIds}`);
+						attrObj[`${nameOfElem}.${attrIds}`] = `${base}/${file}#${attrIds}`;
 					}
 				});
+				// console.log(attrObj);
 				elemObj[ nameOfElem ] = base + file;
 			}
 
@@ -130,7 +131,7 @@ let mdnHTML = {
 				// ':LINK': req.elemObj[ elemName ]
 		}
 		for ( let attrName in req.attrObj ) {
-			jsonIndex.result.push({"NAME": attrName, "TYPE": "attribute", "LINK": req.elemObj[attrName]});
+			jsonIndex.result.push({"NAME": attrName, "TYPE": "attribute", "LINK": req.attrObj[attrName]});
 				// ':ID': i++,
 				// ':NAME': attrName,
 				// ':TYPE': "attribute",
@@ -145,9 +146,9 @@ let mdnHTML = {
 	},
 
 	zip: function ( req, res, next ) {
-		let output = fs.createWriteStream( './zips/mdn/mdn_html.zip');
+		let output = fs.createWriteStream( './zips/mdn/mdn_html'+req.scrapeProps.versionNo+'.zip');
 		let archive = archiver('zip');
-		req.scrapeProps.filePath = './zips/mdn/mdn_html.zip';
+		req.scrapeProps.filePath = './zips/mdn/mdn_html'+req.scrapeProps.versionNo+'.zip';
 
 		output.on('close', function() {
 			fs.unlink('./temp/HTML.tgz', (err) => {

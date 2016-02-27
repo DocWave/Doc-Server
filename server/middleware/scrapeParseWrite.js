@@ -18,7 +18,7 @@ var scrapeParseWrite = {
         //check to see if folder exists or create folder to store zip if it doesn't exist
         folderHandler.checkOrCreateFolder(zipFolder);
         //Create output file stream from scrapeDir
-        req.output = fs.createWriteStream(zipFolder+req.scrapeProps.scrapeDir.slice(0,-1)+'.zip');
+        req.output = fs.createWriteStream(zipFolder+req.scrapeProps.scrapeDir.slice(0,-1)+req.scrapeProps.versionNo+'.zip');
         this.scrape(req, res, next);
     },
 
