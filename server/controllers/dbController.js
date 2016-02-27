@@ -10,16 +10,18 @@ module.exports = {
       query.findOne({},{},{ sort: { 'createdAt' : -1 } }, function(err, foundVer){
           if(err) console.log(err);
           try{
-            //   console.log("found ");
               let fileStats = fs.statSync(path.resolve(foundVer.filePath));
               //If we find that we have the same version, send the version we already have
+              req.scrapeProps = foundVer.filePath;
               return res.sendFile(path.resolve(foundVer.filePath));
+            //  next();
           }
           //We didn't find the file in the directory, so proceed as usual
           catch(e){
               next();
           }
           console.log(foundVer);
+        //   req.scrapeProps = foundVer.filePath;
           return res.sendFile(path.resolve(foundVer.filePath));
       });
   },

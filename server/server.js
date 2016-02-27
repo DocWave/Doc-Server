@@ -75,6 +75,9 @@ app.get( '/', function ( req, res ) {
 // 	res.sendFile(path.resolve('./mdn_javascript.zip'));
 // 	console.log('\n finished');
 // });
+app.get('/uphtml', updates.MDN_HTML, function(req, res, next){
+	res.sendFile(path.resolve(req.scrapeProps.filePath))
+})
 
 app.get('/updateVersions', updates.MDN_CSS, updates.MDN_HTML, updates.MDN_Javascript, updates.NodeJS, updates.Express_API,
 		function(req, res){

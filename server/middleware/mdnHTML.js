@@ -104,11 +104,13 @@ let mdnHTML = {
 				$( "a[name*='attr-']" ).each( (i , el) => {
 					if($(el).attr('name')){
 						attrIds = $( el ).attr('name').replace(/attr-/g, "");
-						// console.log(attrIds);
-						$(el).attr(`id`, `#${attrIds}`);
+						$(el).attr('id', attrIds);
+						console.log($(el).attr('id'));
 						attrObj[`${nameOfElem}.${attrIds}`] = `${base}/${file}#${attrIds}`;
 					}
 				});
+				var html = $.html();
+				fs.writeFileSync( `./docs/mdn/html/documents/${base}/${file}`, html)
 				// console.log(attrObj);
 				elemObj[ nameOfElem ] = base + file;
 			}
