@@ -11,7 +11,7 @@ module.exports = {
           if(err) console.log(err);
           try{
             //   console.log("found ");
-              let fileStats = fs.statSync(path.resolve(foundUpdate.filePath));
+              let fileStats = fs.statSync(path.resolve(foundVer.filePath));
               //If we find that we have the same version, send the version we already have
               return res.sendFile(path.resolve(foundVer.filePath));
           }
