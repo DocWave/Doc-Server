@@ -175,7 +175,7 @@ let mdnCSS = {
 		let archive = archiver('zip');
 		req.scrapeProps.filePath = './zips/mdn/mdn_css'+req.scrapeProps.versionNo+'.zip';
 		output.on('close', function() {
-			fs.unlink('./temp/HTML.tgz', (err) => {
+			fs.unlink('./temp/CSS.tgz', (err) => {
 				//Null out jsonindex and req stuff
 				req.classObj = null;
 				req.elemObj = null;
