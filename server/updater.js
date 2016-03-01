@@ -20,6 +20,21 @@ mongoose.connect( 'mongodb://Doc:tor@ds059215.mongolab.com:59215/doc-tor' );
 const db = mongoose.connection;
 const app = express();
 
+const updates = {"MDN_HTML":[requestProps.html, version.html, mdnHTML.download, mdnHTML.getHTML,
+						mdnHTML.extract, mdnHTML.getElements, mdnHTML.sqlFile, mdnHTML.zip, dbController.addToDB],
+
+				"MDN_CSS": [requestProps.css, version.css, mdnCSS.download, mdnCSS.getCSS,
+						mdnCSS.extract, mdnCSS.getObjs, mdnCSS.getMoz,
+						mdnCSS.sqlFile, mdnCSS.zip, dbController.addToDB],
+
+				"MDN_Javascript": [requestProps.js, version.js, dbController.needUpdate, mdnJS.download, mdnJS.getJavascript,
+						mdnJS.extract, mdnJS.createClassObj, mdnJS.createMethodsObj, mdnJS.createEventObj,
+						mdnJS.createKWObj, mdnJS.createFuncObj, mdnJS.sqlFile, mdnJS.zip, dbController.addToDB],
+
+				"NodeJS": [requestProps.node, version.node, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB],
+
+				"Express_API":[requestProps.express, version.express, scrapeParseWrite.createZip.bind(scrapeParseWrite), dbController.addToDB]
+			};
 
 require( 'dns' )
 	.lookup( require( 'os' )
@@ -60,8 +75,15 @@ app.get( '/', function ( req, res ) {
 // 	res.sendFile(path.resolve('./mdn_javascript.zip'));
 // 	console.log('\n finished');
 // });
+app.get('/uphtml', updates.MDN_HTML, function(req, res, next){
+	res.sendFile(path.resolve(req.scrapeProps.filePath))
+})
 
-
+app.get('/updateVersions', updates.MDN_CSS, updates.MDN_HTML, updates.MDN_Javascript, updates.NodeJS, updates.Express_API,
+		function(req, res){
+			req.scrapeProps = null;
+			res.end();
+});
 app.get( '/mdn_html', requestProps.html, dbController.latestVer, function ( req, res ) {
 		res.sendFile(path.resolve(req.scrapeProps.filePath));
 		req.scrapeProps = null;
@@ -121,6 +143,6 @@ app.put( '/node', function ( req, res ) {});
 //   console.log("send full html back to client");
 // });
 
-app.listen( 8080, function () {
-	console.log( "Server is listening on port 80" );
+app.listen( 8085, function () {
+	console.log( "Updater is listening on port 8085" );
 } );
